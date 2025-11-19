@@ -46,7 +46,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
       }
     }
 
-    // Add resize
+    // Add resize (only if not 'none')
     if (resizeMode === 'width') {
       operations.push({ op: 'resize', mode: 'width', width: resizeWidth, noUpscale });
     } else if (resizeMode === 'height') {
@@ -60,6 +60,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
         noUpscale,
       });
     }
+    // If resizeMode === 'none', skip resize operation entirely
 
     // Add convert
     operations.push({
@@ -103,6 +104,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
             onChange={(e) => setResizeMode(e.target.value)}
             className="input-field"
           >
+            <option value="none">None (convert only)</option>
             <option value="width">Width Only</option>
             <option value="height">Height Only</option>
             <option value="contain">Contain (fit in box)</option>
@@ -141,18 +143,20 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
           </div>
         )}
 
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="noUpscale"
-            checked={noUpscale}
-            onChange={(e) => setNoUpscale(e.target.checked)}
-            className="w-4 h-4 text-primary-600 rounded"
-          />
-          <label htmlFor="noUpscale" className="text-sm font-medium text-gray-700">
-            Prevent upscaling (don't enlarge small images)
-          </label>
-        </div>
+        {resizeMode !== 'none' && (
+          <div className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              id="noUpscale"
+              checked={noUpscale}
+              onChange={(e) => setNoUpscale(e.target.checked)}
+              className="w-4 h-4 text-primary-600 rounded"
+            />
+            <label htmlFor="noUpscale" className="text-sm font-medium text-gray-700">
+              Prevent upscaling (don't enlarge small images)
+            </label>
+          </div>
+        )}
       </div>
 
       {/* Enhanced Crop Settings */}

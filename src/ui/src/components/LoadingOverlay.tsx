@@ -7,12 +7,14 @@ interface LoadingOverlayProps {
     current: number;
     total: number;
   };
+  showIndeterminate?: boolean;
 }
 
 export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
   isVisible,
   message = 'Processing...',
-  progress
+  progress,
+  showIndeterminate = false
 }) => {
   if (!isVisible) return null;
 
@@ -55,8 +57,8 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
           {message}
         </h3>
 
-        {/* Progress Info */}
-        {progress && (
+        {/* Progress Info - Only show if not indeterminate and has progress */}
+        {!showIndeterminate && progress && progress.total > 1 && (
           <div className="space-y-3">
             <div className="text-center">
               <p className="text-sm text-gray-600">
@@ -79,6 +81,15 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
             {/* Percentage */}
             <p className="text-center text-sm font-medium text-gray-700">
               {progressPercentage}% Complete
+            </p>
+          </div>
+        )}
+
+        {/* Indeterminate or single image - just show message */}
+        {(showIndeterminate || (progress && progress.total === 1)) && (
+          <div className="text-center">
+            <p className="text-sm text-gray-600">
+              Please wait while we process your image...
             </p>
           </div>
         )}

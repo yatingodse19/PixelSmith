@@ -69,10 +69,7 @@ function App() {
           autoClose: 3000,
         });
       } else {
-        // Batch processing - simulate progress
-        setProcessingProgress({ current: 0, total: selectedFiles.length });
-
-        // Start processing
+        // Batch processing
         const formData = new FormData();
         selectedFiles.forEach(file => {
           formData.append('images', file);
@@ -80,20 +77,10 @@ function App() {
         formData.append('pipeline', JSON.stringify(pipeline));
         formData.append('concurrency', '4');
 
-        // Simulate progress updates
-        const progressInterval = setInterval(() => {
-          setProcessingProgress(prev => {
-            if (!prev || prev.current >= prev.total) return prev;
-            return { current: prev.current + 1, total: prev.total };
-          });
-        }, 500); // Update every 500ms
-
         const response = await fetch('/api/process-batch', {
           method: 'POST',
           body: formData,
         });
-
-        clearInterval(progressInterval);
 
         if (!response.ok) {
           const error = await response.json();
