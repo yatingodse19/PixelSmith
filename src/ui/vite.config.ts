@@ -16,7 +16,7 @@ export default defineConfig({
     exclude: ['@silvia-odwyer/photon', '@jsquash/webp', '@jsquash/jpeg'],
   },
   build: {
-    outDir: 'dist',
+    outDir: '../../dist',  // Output to root dist/ folder
     emptyOutDir: true,
     target: 'esnext',
     // Suppress chunk size warnings (WASM bundles are expected to be large)

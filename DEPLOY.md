@@ -28,7 +28,7 @@ npm run preview
 After running `npm run build`, the production-ready files will be in:
 
 ```
-src/ui/dist/
+dist/
 ├── index.html              # Entry point
 ├── assets/
 │   ├── index-[hash].js     # ~295 KB (54 KB gzipped) - Main app
@@ -53,7 +53,7 @@ src/ui/dist/
 
 ## 📦 What to Deploy
 
-**Deploy the entire `src/ui/dist/` folder** to your static hosting provider.
+**Deploy the entire `dist/` folder** to your static hosting provider.
 
 This folder contains:
 - ✅ Optimized HTML, CSS, JavaScript
@@ -71,7 +71,7 @@ This folder contains:
 ```bash
 npm run build
 # Go to https://app.netlify.com/drop
-# Drag the src/ui/dist folder to the upload area
+# Drag the dist folder to the upload area
 ```
 
 #### Option B: Netlify CLI
@@ -79,7 +79,7 @@ npm run build
 npm run build
 npm install -g netlify-cli
 netlify login
-netlify deploy --dir=src/ui/dist --prod
+netlify deploy --dir=dist --prod
 ```
 
 #### Option C: Git Integration
@@ -89,7 +89,7 @@ netlify deploy --dir=src/ui/dist --prod
 4. Connect your repository
 5. Configure:
    - **Build command**: `npm run build`
-   - **Publish directory**: `src/ui/dist`
+   - **Publish directory**: `dist`
    - **Node version**: `20`
 
 **Netlify Configuration File** (optional):
@@ -98,7 +98,7 @@ Create `netlify.toml` in the root:
 ```toml
 [build]
   command = "npm run build"
-  publish = "src/ui/dist"
+  publish = "dist"
 
 [[headers]]
   for = "/*"
@@ -126,7 +126,7 @@ vercel --prod
 
 When prompted:
 - **Build Command**: `npm run build`
-- **Output Directory**: `src/ui/dist`
+- **Output Directory**: `dist`
 - **Install Command**: `npm install`
 
 **Vercel Configuration File** (optional):
@@ -135,7 +135,7 @@ Create `vercel.json` in the root:
 ```json
 {
   "buildCommand": "npm run build",
-  "outputDirectory": "src/ui/dist",
+  "outputDirectory": "dist",
   "framework": null,
   "headers": [
     {
@@ -161,7 +161,7 @@ Create `vercel.json` in the root:
 3. Connect your Git repository
 4. Configure:
    - **Build command**: `npm run build`
-   - **Build output directory**: `src/ui/dist`
+   - **Build output directory**: `dist`
    - **Root directory**: `/`
    - **Node version**: `20`
 
@@ -169,7 +169,7 @@ Create `vercel.json` in the root:
 ```bash
 npm run build
 npm install -g wrangler
-wrangler pages deploy src/ui/dist --project-name=pixelsmith
+wrangler pages deploy dist --project-name=pixelsmith
 ```
 
 ---
@@ -181,7 +181,7 @@ wrangler pages deploy src/ui/dist --project-name=pixelsmith
 npm run build
 
 # Navigate to build output
-cd src/ui/dist
+cd dist
 
 # Initialize git in dist folder
 git init
@@ -226,7 +226,7 @@ jobs:
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./src/ui/dist
+          publish_dir: ./dist
 ```
 
 ---
@@ -238,10 +238,10 @@ jobs:
 npm run build
 
 # Copy to web server
-scp -r src/ui/dist/* user@server:/var/www/pixelsmith/
+scp -r dist/* user@server:/var/www/pixelsmith/
 
 # Or rsync
-rsync -avz --delete src/ui/dist/ user@server:/var/www/pixelsmith/
+rsync -avz --delete dist/ user@server:/var/www/pixelsmith/
 ```
 
 **nginx Configuration**:
@@ -316,7 +316,7 @@ COPY . .
 RUN npm run build
 
 FROM nginx:alpine
-COPY --from=builder /app/src/ui/dist /usr/share/nginx/html
+COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
 CMD ["nginx", "-g", "daemon off;"]

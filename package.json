@@ -13,11 +13,11 @@
     "dev": "tsc --watch",
     "dev:ui": "cd src/ui && vite",
     "start": "npm run dev:ui",
-    "preview": "cd src/ui && vite preview",
+    "preview": "vite preview --outDir dist",
     "test": "vitest",
     "test:run": "vitest run",
     "lint": "eslint src --ext .ts,.tsx",
-    "clean": "rm -rf dist src/ui/dist"
+    "clean": "rm -rf dist"
   },
   "keywords": [
     "image",
