@@ -12,6 +12,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
   const [resizeHeight, setResizeHeight] = React.useState<number>(768);
   const [outputFormat, setOutputFormat] = React.useState<string>('jpg');
   const [quality, setQuality] = React.useState<number>(85);
+  const [noUpscale, setNoUpscale] = React.useState<boolean>(true);
 
   // Enhanced crop options
   const [enableCrop, setEnableCrop] = React.useState<boolean>(false);
@@ -20,15 +21,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
   const [cropLeft, setCropLeft] = React.useState<number>(0);
   const [cropRight, setCropRight] = React.useState<number>(0);
 
-  const [stripMetadata, setStripMetadata] = React.useState<boolean>(true);
-  const [progressive, setProgressive] = React.useState<boolean>(false);
-  const [noUpscale, setNoUpscale] = React.useState<boolean>(true);
-
   const updatePipeline = () => {
     const operations: Pipeline['pipeline'] = [];
-
-    // Add metadata autorotate
-    operations.push({ op: 'metadata', autorotate: true });
 
     // Add crop operations if enabled
     if (enableCrop) {
@@ -67,13 +61,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
       op: 'convert',
       format: outputFormat,
       quality,
-      progressive: progressive && outputFormat === 'jpg',
     });
-
-    // Strip metadata
-    if (stripMetadata) {
-      operations.push({ op: 'metadata', strip: true });
-    }
 
     onChange({
       ...pipeline,
@@ -83,11 +71,11 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
 
   React.useEffect(() => {
     updatePipeline();
-  }, [resizeMode, resizeWidth, resizeHeight, outputFormat, quality, enableCrop, cropTop, cropBottom, cropLeft, cropRight, stripMetadata, progressive, noUpscale]);
+  }, [resizeMode, resizeWidth, resizeHeight, outputFormat, quality, enableCrop, cropTop, cropBottom, cropLeft, cropRight, noUpscale]);
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800">Settings</h2>
+      <h2 className="text-2xl font-bold text-gray-800">2. Configure Settings</h2>
 
       {/* Resize Settings */}
       <div className="space-y-4">
@@ -277,8 +265,13 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
             <option value="jpg">JPEG</option>
             <option value="png">PNG</option>
             <option value="webp">WebP</option>
-            <option value="avif">AVIF</option>
+            <option value="avif">AVIF → WebP (auto-converted)</option>
           </select>
+          {outputFormat === 'avif' && (
+            <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded mt-2">
+              ⚠️ AVIF not supported by WebAssembly - will auto-convert to WebP
+            </p>
+          )}
         </div>
 
         <div>
@@ -298,47 +291,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
             <span>High (better quality)</span>
           </div>
         </div>
-
-        {outputFormat === 'jpg' && (
-          <div className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              id="progressive"
-              checked={progressive}
-              onChange={(e) => setProgressive(e.target.checked)}
-              className="w-4 h-4 text-primary-600 rounded"
-            />
-            <label htmlFor="progressive" className="text-sm font-medium text-gray-700">
-              Progressive JPEG (loads gradually)
-            </label>
-          </div>
-        )}
       </div>
 
-      {/* Metadata Settings */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-          <span>🔒</span> Privacy & Metadata
-        </h3>
-
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="strip"
-            checked={stripMetadata}
-            onChange={(e) => setStripMetadata(e.target.checked)}
-            className="w-4 h-4 text-primary-600 rounded"
-          />
-          <label htmlFor="strip" className="text-sm font-medium text-gray-700">
-            Strip EXIF metadata (location, camera info, etc.)
-          </label>
-        </div>
-
-        {stripMetadata && (
-          <p className="text-xs text-green-600 bg-green-50 p-2 rounded">
-            ✓ Recommended for privacy - removes all metadata from images
-          </p>
-        )}
+      {/* WebAssembly Info */}
+      <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
+        <p className="text-sm text-blue-800">
+          ⚡ <strong>WebAssembly-powered:</strong> All processing happens in your browser.
+          Images never leave your device!
+        </p>
       </div>
     </div>
   );

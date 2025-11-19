@@ -13,10 +13,8 @@ function App() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [pipeline, setPipeline] = useState<Pipeline>({
     pipeline: [
-      { op: 'metadata', autorotate: true },
       { op: 'resize', mode: 'width', width: 1024, noUpscale: true },
-      { op: 'convert', format: 'jpg', quality: 85, progressive: false },
-      { op: 'metadata', strip: true },
+      { op: 'convert', format: 'jpg', quality: 85 },
     ],
   });
   const [processing, setProcessing] = useState(false);

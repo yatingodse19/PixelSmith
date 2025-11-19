@@ -12,21 +12,17 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, onClear
 
   if (results.length === 0) return null;
 
-  const successCount = results.filter(r => r.success).length;
-  const failedCount = results.length - successCount;
-  const totalInputSize = results.reduce((sum, r) => sum + (r.inputSize || 0), 0);
-  const totalOutputSize = results.reduce((sum, r) => sum + (r.outputSize || 0), 0);
-  const savings = totalInputSize > 0 ? ((1 - totalOutputSize / totalInputSize) * 100).toFixed(1) : '0';
+  const successfulResults = results.filter(r => r.success && r.url);
+  const failedResults = results.filter(r => !r.success);
 
-  const formatSize = (bytes: number) => {
+  const formatSize = (bytes?: number) => {
+    if (!bytes) return 'N/A';
     if (bytes < 1024) return `${bytes} B`;
     if (bytes < 1024 * 1024) return `${(bytes / 1024).toFixed(2)} KB`;
     return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
   };
 
   const handleDownloadAll = async () => {
-    const successfulResults = results.filter(r => r.success && r.outputUrl);
-
     if (successfulResults.length === 0) {
       alert('No images to download');
       return;
@@ -34,11 +30,15 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, onClear
 
     if (successfulResults.length === 1) {
       // Single file - direct download
-      const url = `http://localhost:3001${successfulResults[0].outputUrl}`;
+      const result = successfulResults[0];
+      if (!result.url) return;
+
       const link = document.createElement('a');
-      link.href = url;
-      link.download = successfulResults[0].outputPath?.split('/').pop() || 'image';
+      link.href = result.url;
+      link.download = result.filename || 'image.jpg';
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
       return;
     }
 
@@ -47,16 +47,14 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, onClear
     try {
       const zip = new JSZip();
 
-      // Fetch all images and add to zip
+      // Fetch all blob URLs and add to zip
       for (const result of successfulResults) {
-        if (!result.outputUrl) continue;
+        if (!result.url) continue;
 
-        const url = `http://localhost:3001${result.outputUrl}`;
-        const response = await fetch(url);
+        const response = await fetch(result.url);
         const blob = await response.blob();
-        const filename = result.outputPath?.split('/').pop() || `image_${Date.now()}.jpg`;
 
-        zip.file(filename, blob);
+        zip.file(result.filename || `image_${Date.now()}.jpg`, blob);
       }
 
       // Generate and download ZIP
@@ -64,7 +62,9 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, onClear
       const link = document.createElement('a');
       link.href = URL.createObjectURL(zipBlob);
       link.download = `pixelsmith_${Date.now()}.zip`;
+      document.body.appendChild(link);
       link.click();
+      document.body.removeChild(link);
 
       // Cleanup
       setTimeout(() => URL.revokeObjectURL(link.href), 100);
@@ -81,11 +81,11 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, onClear
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-800">Results</h2>
         <div className="flex gap-2">
-          {successCount > 0 && (
+          {successfulResults.length > 0 && (
             <button
               onClick={handleDownloadAll}
               disabled={downloading}
-              className="btn-primary text-sm flex items-center gap-2"
+              className="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-lg text-sm flex items-center gap-2 transition-colors"
             >
               {downloading ? (
                 <>
@@ -100,36 +100,35 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, onClear
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                   </svg>
-                  Download All ({successCount})
+                  Download All ({successfulResults.length})
                 </>
               )}
             </button>
           )}
-          <button onClick={onClear} className="btn-secondary text-sm">
+          <button
+            onClick={onClear}
+            className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm transition-colors"
+          >
             Clear
           </button>
         </div>
       </div>
 
       {/* Summary */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
         <div className="bg-green-50 rounded-lg p-4">
-          <p className="text-sm text-gray-600">Success</p>
-          <p className="text-2xl font-bold text-green-600">{successCount}</p>
+          <p className="text-sm text-gray-600">✓ Success</p>
+          <p className="text-2xl font-bold text-green-600">{successfulResults.length}</p>
         </div>
-        {failedCount > 0 && (
+        {failedResults.length > 0 && (
           <div className="bg-red-50 rounded-lg p-4">
-            <p className="text-sm text-gray-600">Failed</p>
-            <p className="text-2xl font-bold text-red-600">{failedCount}</p>
+            <p className="text-sm text-gray-600">✗ Failed</p>
+            <p className="text-2xl font-bold text-red-600">{failedResults.length}</p>
           </div>
         )}
         <div className="bg-blue-50 rounded-lg p-4">
-          <p className="text-sm text-gray-600">Input Size</p>
-          <p className="text-2xl font-bold text-blue-600">{formatSize(totalInputSize)}</p>
-        </div>
-        <div className="bg-purple-50 rounded-lg p-4">
-          <p className="text-sm text-gray-600">Saved</p>
-          <p className="text-2xl font-bold text-purple-600">{savings}%</p>
+          <p className="text-sm text-gray-600">Total</p>
+          <p className="text-2xl font-bold text-blue-600">{results.length}</p>
         </div>
       </div>
 
@@ -145,21 +144,13 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, onClear
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
                 <p className="font-medium text-gray-800 truncate">
-                  {result.inputPath.split('/').pop() || result.inputPath}
+                  {result.filename}
                 </p>
                 {result.success ? (
                   <div className="mt-2 space-y-1 text-sm text-gray-600">
-                    {result.width && result.height && (
-                      <p>Dimensions: {result.width}×{result.height}</p>
+                    {result.size && (
+                      <p>Output size: {formatSize(result.size)}</p>
                     )}
-                    {result.inputSize && result.outputSize && (
-                      <p>
-                        Size: {formatSize(result.inputSize)} → {formatSize(result.outputSize)}
-                        {' '}
-                        ({((1 - result.outputSize / result.inputSize) * 100).toFixed(1)}% smaller)
-                      </p>
-                    )}
-                    {result.duration && <p>Processed in {result.duration}ms</p>}
                   </div>
                 ) : (
                   <p className="mt-1 text-sm text-red-600">
@@ -167,11 +158,20 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, onClear
                   </p>
                 )}
               </div>
-              {result.success && result.outputUrl && (
+              {result.success && result.url && (
                 <a
-                  href={`http://localhost:3001${result.outputUrl}`}
-                  download
-                  className="btn-primary text-sm whitespace-nowrap flex items-center gap-1"
+                  href={result.url}
+                  download={result.filename}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    const link = document.createElement('a');
+                    link.href = result.url!;
+                    link.download = result.filename;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                  }}
+                  className="bg-primary-600 hover:bg-primary-700 text-white px-3 py-2 rounded-lg text-sm whitespace-nowrap flex items-center gap-1 transition-colors"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
@@ -180,12 +180,16 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, onClear
                 </a>
               )}
             </div>
-            {result.success && result.outputUrl && (
+            {result.success && result.url && (
               <div className="mt-3">
                 <img
-                  src={`http://localhost:3001${result.outputUrl}`}
+                  src={result.url}
                   alt="Processed"
                   className="max-w-xs rounded border border-gray-200"
+                  onError={(e) => {
+                    console.error('Image failed to load:', result.url);
+                    e.currentTarget.style.display = 'none';
+                  }}
                 />
               </div>
             )}
