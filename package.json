@@ -8,15 +8,16 @@
     "pixelsmith": "./dist/cli/index.js"
   },
   "scripts": {
-    "build": "tsc && npm run build:ui",
+    "build": "npm run clean && npm run build:ui",
     "build:ui": "cd src/ui && vite build",
     "dev": "tsc --watch",
     "dev:ui": "cd src/ui && vite",
     "start": "npm run dev:ui",
+    "preview": "cd src/ui && vite preview",
     "test": "vitest",
     "test:run": "vitest run",
-    "lint": "eslint src --ext .ts",
-    "clean": "rm -rf dist"
+    "lint": "eslint src --ext .ts,.tsx",
+    "clean": "rm -rf dist src/ui/dist"
   },
   "keywords": [
     "image",

@@ -19,5 +19,18 @@ export default defineConfig({
     outDir: 'dist',
     emptyOutDir: true,
     target: 'esnext',
+    // Suppress chunk size warnings (WASM bundles are expected to be large)
+    chunkSizeWarningLimit: 1000,
+    rollupOptions: {
+      output: {
+        // Manual chunks for better code splitting
+        manualChunks: {
+          // React and core UI libraries
+          'vendor-react': ['react', 'react-dom'],
+          // Image processing libraries (separate chunk)
+          'vendor-image': ['jszip'],
+        },
+      },
+    },
   },
 });
