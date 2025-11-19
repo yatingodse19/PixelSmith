@@ -1,16 +1,20 @@
 /**
- * WebAssembly-based client-side image processing using Photon
+ * WebAssembly-based client-side image processing
  *
  * This module provides 100% client-side image processing with no server uploads.
  * All processing happens in the browser using WebAssembly for near-native performance.
  *
+ * Libraries used:
+ * - Photon: Resize, crop, and image manipulation
+ * - @jsquash/webp: Lossy WebP compression with quality control
+ *
  * Supported operations:
  * - Resize (width, height, contain modes)
  * - Crop (top, bottom, left, right edges)
- * - Format conversion (JPEG, PNG, WebP)
+ * - Format conversion (JPEG, PNG, WebP with quality control)
  * - Quality/compression settings
  *
- * Note: AVIF format is not supported by Photon yet, will fall back to WebP.
+ * Note: AVIF format is not supported yet, will fall back to WebP.
  */
 
 import initPhoton, {
@@ -19,6 +23,7 @@ import initPhoton, {
   crop,
   SamplingFilter,
 } from '@silvia-odwyer/photon';
+import { encode as encodeWebP } from '@jsquash/webp';
 
 // WASM initialization state
 let wasmInitialized = false;
@@ -196,11 +201,10 @@ function applyResize(
 /**
  * Convert PhotonImage to output format
  *
- * LIMITATION: Photon's WebP encoder doesn't support quality parameter.
- * It uses lossless compression which produces larger files but perfect quality.
- * For smaller files, use JPEG with quality control.
+ * Uses @jsquash/webp for proper lossy WebP compression with quality control.
+ * This gives smaller file sizes than JPEG while maintaining good quality.
  */
-function getImageBytes(img: PhotonImage, format: string, quality: number): Uint8Array {
+async function getImageBytes(img: PhotonImage, format: string, quality: number): Promise<Uint8Array> {
   switch (format) {
     case 'jpg':
     case 'jpeg':
@@ -208,15 +212,30 @@ function getImageBytes(img: PhotonImage, format: string, quality: number): Uint8
       return img.get_bytes_jpeg(quality);
 
     case 'webp':
-      // WARNING: Photon's get_bytes_webp() doesn't accept quality parameter
-      // Uses lossless compression - larger files, perfect quality
-      console.warn('[WASM] WebP using lossless compression (quality control not available in Photon)');
-      return img.get_bytes_webp();
+    case 'avif': {
+      // Use @jsquash/webp for lossy compression with quality control
+      // This provides smaller files than JPEG with better quality
+      if (format === 'avif') {
+        console.warn('AVIF format not supported yet, using WebP with quality control instead');
+      }
 
-    case 'avif':
-      // AVIF not supported by Photon, fall back to WebP (lossless)
-      console.warn('AVIF format not supported by WebAssembly processor, using WebP lossless instead');
-      return img.get_bytes_webp();
+      // Convert PhotonImage to ImageData
+      const width = img.get_width();
+      const height = img.get_height();
+      const rawPixels = img.get_raw_pixels();
+
+      // Create ImageData from raw pixels
+      const imageData = new ImageData(
+        new Uint8ClampedArray(rawPixels),
+        width,
+        height
+      );
+
+      // Encode with @jsquash/webp (supports quality 0-100)
+      console.log(`[WASM] Encoding WebP with quality ${quality}`);
+      const webpArrayBuffer = await encodeWebP(imageData, { quality });
+      return new Uint8Array(webpArrayBuffer);
+    }
 
     case 'png':
     default:
@@ -278,7 +297,7 @@ export async function processImageWASM(
     // Convert to output format
     const format = options.format || 'png';
     const quality = options.quality || 80;
-    const outputBytes = getImageBytes(img, format, quality);
+    const outputBytes = await getImageBytes(img, format, quality);
 
     // Create blob and URL
     const mimeType = getMimeType(format);

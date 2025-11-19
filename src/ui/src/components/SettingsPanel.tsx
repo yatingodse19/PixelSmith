@@ -262,19 +262,19 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
             onChange={(e) => setOutputFormat(e.target.value)}
             className="input-field"
           >
-            <option value="jpg">JPEG (quality control available)</option>
+            <option value="jpg">JPEG (lossy, quality control)</option>
+            <option value="webp">WebP (lossy, quality control, smaller files)</option>
             <option value="png">PNG (lossless, larger files)</option>
-            <option value="webp">WebP (lossless, no quality control)</option>
             <option value="avif">AVIF → WebP (auto-converted)</option>
           </select>
           {outputFormat === 'webp' && (
-            <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded mt-2">
-              ⚠️ <strong>WebP uses lossless compression</strong> - Quality slider has no effect. Files may be larger than JPEG but have perfect quality. For smaller files, use JPEG with lower quality.
+            <p className="text-xs text-green-600 bg-green-50 p-2 rounded mt-2">
+              ✅ <strong>WebP with quality control</strong> - Typically 25-35% smaller than JPEG at the same quality. Great for web use!
             </p>
           )}
           {outputFormat === 'avif' && (
             <p className="text-xs text-amber-600 bg-amber-50 p-2 rounded mt-2">
-              ⚠️ AVIF not supported by WebAssembly - will auto-convert to WebP (lossless)
+              ⚠️ AVIF not supported yet - will auto-convert to WebP with quality control
             </p>
           )}
           {outputFormat === 'png' && (
@@ -285,20 +285,20 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
         </div>
 
         <div>
-          <label className={`block text-sm font-medium mb-2 ${outputFormat === 'jpg' ? 'text-gray-700' : 'text-gray-400'}`}>
-            Quality: <span className={outputFormat === 'jpg' ? 'text-primary-600 font-bold' : 'text-gray-400 font-bold'}>{quality}</span>
-            {outputFormat !== 'jpg' && <span className="text-xs ml-2">(only for JPEG)</span>}
+          <label className={`block text-sm font-medium mb-2 ${outputFormat === 'jpg' || outputFormat === 'webp' || outputFormat === 'avif' ? 'text-gray-700' : 'text-gray-400'}`}>
+            Quality: <span className={outputFormat === 'jpg' || outputFormat === 'webp' || outputFormat === 'avif' ? 'text-primary-600 font-bold' : 'text-gray-400 font-bold'}>{quality}</span>
+            {outputFormat === 'png' && <span className="text-xs ml-2">(not used for PNG)</span>}
           </label>
           <input
             type="range"
             value={quality}
             onChange={(e) => setQuality(parseInt(e.target.value))}
-            disabled={outputFormat !== 'jpg'}
-            className={`w-full h-2 rounded-lg appearance-none ${outputFormat === 'jpg' ? 'cursor-pointer bg-gray-200 accent-primary-600' : 'cursor-not-allowed bg-gray-100 opacity-50'}`}
+            disabled={outputFormat === 'png'}
+            className={`w-full h-2 rounded-lg appearance-none ${outputFormat !== 'png' ? 'cursor-pointer bg-gray-200 accent-primary-600' : 'cursor-not-allowed bg-gray-100 opacity-50'}`}
             min="1"
             max="100"
           />
-          <div className={`flex justify-between text-xs mt-1 ${outputFormat === 'jpg' ? 'text-gray-500' : 'text-gray-400'}`}>
+          <div className={`flex justify-between text-xs mt-1 ${outputFormat !== 'png' ? 'text-gray-500' : 'text-gray-400'}`}>
             <span>Low (smaller file)</span>
             <span>High (better quality)</span>
           </div>
