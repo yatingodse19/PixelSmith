@@ -41,3 +41,8 @@ temp/
 # Output images (for testing)
 test-output/
 output/
+uploads/
+
+# UI build
+src/ui/dist/
+src/ui/node_modules/

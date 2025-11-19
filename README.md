@@ -6,6 +6,7 @@ PixelSmith is a powerful, local-only image processing tool built with Node.js an
 
 ## Features
 
+- **Graphical User Interface** - Beautiful web-based UI with drag-and-drop
 - **100% Local Processing** - No uploads, no cloud, complete privacy
 - **Batch Processing** - Process multiple images efficiently with concurrency control
 - **Multiple Operations**:
@@ -39,7 +40,39 @@ npm run build
 
 ## Usage
 
-### CLI Commands
+PixelSmith offers two interfaces: a modern **Web UI** for visual, drag-and-drop processing, and a powerful **CLI** for automation and scripting.
+
+### 🎨 Web UI (Recommended for most users)
+
+The graphical interface provides an intuitive way to process images with real-time preview and batch support.
+
+**Start the Web UI:**
+
+```bash
+npm start:ui
+```
+
+Then open your browser to **http://localhost:3000**
+
+**Features:**
+- **Drag & Drop** - Simply drag images into the browser
+- **Visual Controls** - Adjust resize, crop, format, and quality with sliders and dropdowns
+- **Preset Selector** - Quick access to common configurations
+- **Live Results** - See processed images immediately with before/after comparison
+- **Batch Processing** - Process multiple images at once
+- **Privacy Indicator** - Always shows that processing is 100% local
+
+**Quick Start:**
+1. Drag and drop images onto the upload area
+2. Choose a preset or customize settings in the right panel
+3. Click "Process Images" button
+4. Download your processed images
+
+---
+
+### 💻 CLI Commands
+
+For automation, scripting, and advanced users.
 
 #### Basic Usage
 
