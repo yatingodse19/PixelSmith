@@ -17,7 +17,11 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({ onPresetSelected
     const preset = getPreset(presetName);
     if (preset) {
       console.log(`[Preset] Loading: ${preset.name}`);
-      onPresetSelected(preset.pipeline);
+      // Pass pipeline with the preset name included
+      onPresetSelected({
+        name: preset.name,
+        ...preset.pipeline,
+      });
     } else {
       console.error('Preset not found:', presetName);
     }

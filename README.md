@@ -151,7 +151,7 @@ npm run lint
 # Build for production
 npm run build
 
-# Output location: src/ui/dist/
+# Output location: dist/
 # Contains optimized HTML, CSS, JS, and WASM files
 # Ready to deploy to any static hosting service
 ```
@@ -161,7 +161,7 @@ npm run build
 After running `npm run build`, you'll get:
 
 ```
-src/ui/dist/
+dist/
 ├── index.html                 # Entry point
 ├── assets/
 │   ├── index-[hash].js        # ~765 KB (144 KB gzipped) - Main application
@@ -306,11 +306,11 @@ npm run build
 
 # Option 1: Drag and drop
 # Go to https://app.netlify.com/drop
-# Drag src/ui/dist folder
+# Drag dist folder
 
 # Option 2: Netlify CLI
 npm install -g netlify-cli
-netlify deploy --dir=src/ui/dist --prod
+netlify deploy --dir=dist --prod
 ```
 
 ### Vercel
@@ -322,7 +322,7 @@ npm run build
 # Deploy with Vercel CLI
 npm install -g vercel
 vercel --prod
-# When prompted, set output directory to: src/ui/dist
+# When prompted, set output directory to: dist
 ```
 
 ### GitHub Pages
@@ -332,7 +332,7 @@ vercel --prod
 npm run build
 
 # Deploy to gh-pages branch
-cd src/ui/dist
+cd dist
 git init
 git add -A
 git commit -m "Deploy to GitHub Pages"
@@ -350,7 +350,7 @@ npm run build
 
 # Connect your GitHub repo to Cloudflare Pages
 # Build command: npm run build
-# Build output directory: src/ui/dist
+# Build output directory: dist
 ```
 
 ### Any Static Server
@@ -359,12 +359,12 @@ npm run build
 # Build the app
 npm run build
 
-# Serve src/ui/dist with any static server:
+# Serve dist with any static server:
 # - nginx
 # - Apache
 # - Caddy
-# - Python: python -m http.server -d src/ui/dist
-# - Node.js: npx serve src/ui/dist
+# - Python: python -m http.server -d dist
+# - Node.js: npx serve dist
 ```
 
 ---
