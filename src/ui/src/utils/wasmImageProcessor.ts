@@ -195,23 +195,32 @@ function applyResize(
 
 /**
  * Convert PhotonImage to output format
+ *
+ * LIMITATION: Photon's WebP encoder doesn't support quality parameter.
+ * It uses lossless compression which produces larger files but perfect quality.
+ * For smaller files, use JPEG with quality control.
  */
 function getImageBytes(img: PhotonImage, format: string, quality: number): Uint8Array {
   switch (format) {
     case 'jpg':
     case 'jpeg':
+      // JPEG supports quality control (1-100)
       return img.get_bytes_jpeg(quality);
 
     case 'webp':
+      // WARNING: Photon's get_bytes_webp() doesn't accept quality parameter
+      // Uses lossless compression - larger files, perfect quality
+      console.warn('[WASM] WebP using lossless compression (quality control not available in Photon)');
       return img.get_bytes_webp();
 
     case 'avif':
-      // AVIF not supported by Photon, fall back to WebP
-      console.warn('AVIF format not supported by WebAssembly processor, using WebP instead');
+      // AVIF not supported by Photon, fall back to WebP (lossless)
+      console.warn('AVIF format not supported by WebAssembly processor, using WebP lossless instead');
       return img.get_bytes_webp();
 
     case 'png':
     default:
+      // PNG is always lossless
       return img.get_bytes();
   }
 }
