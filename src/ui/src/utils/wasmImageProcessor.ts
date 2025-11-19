@@ -13,12 +13,46 @@
  * Note: AVIF format is not supported by Photon yet, will fall back to WebP.
  */
 
-import {
+import initPhoton, {
   PhotonImage,
   resize,
   crop,
   SamplingFilter,
 } from '@silvia-odwyer/photon';
+
+// WASM initialization state
+let wasmInitialized = false;
+let wasmInitPromise: Promise<void> | null = null;
+
+/**
+ * Initialize the Photon WASM module
+ * This must be called before any image processing operations
+ */
+async function ensureWasmInitialized(): Promise<void> {
+  if (wasmInitialized) {
+    return;
+  }
+
+  if (wasmInitPromise) {
+    // Already initializing, wait for it
+    return wasmInitPromise;
+  }
+
+  wasmInitPromise = (async () => {
+    try {
+      console.log('[WASM] Initializing Photon WebAssembly module...');
+      await initPhoton();
+      wasmInitialized = true;
+      console.log('[WASM] Photon initialized successfully');
+    } catch (error) {
+      console.error('[WASM] Failed to initialize Photon:', error);
+      wasmInitPromise = null; // Allow retry
+      throw new Error('Failed to initialize WebAssembly module');
+    }
+  })();
+
+  return wasmInitPromise;
+}
 
 export interface ProcessingOptions {
   resize?: {
@@ -206,6 +240,9 @@ export async function processImageWASM(
   options: ProcessingOptions
 ): Promise<ProcessingResult> {
   try {
+    // Ensure WASM is initialized before processing
+    await ensureWasmInitialized();
+
     console.log(`[WASM] Processing ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
     const startTime = performance.now();
 
@@ -272,6 +309,9 @@ export async function processBatchWASM(
   concurrency: number = 4,
   onProgress?: (current: number, total: number) => void
 ): Promise<ProcessingResult[]> {
+  // Ensure WASM is initialized before batch processing
+  await ensureWasmInitialized();
+
   const results: ProcessingResult[] = [];
   const total = files.length;
   let completed = 0;
