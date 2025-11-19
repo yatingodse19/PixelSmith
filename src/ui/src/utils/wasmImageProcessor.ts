@@ -382,19 +382,28 @@ export async function processBatchWASM(
   console.log(`[WASM] Starting batch processing: ${total} images, concurrency: ${concurrency}`);
   const batchStartTime = performance.now();
 
+  // Report initial progress
+  if (onProgress) {
+    onProgress(0, total);
+  }
+
+  // Process images with concurrency control, reporting progress after each image
+  const processWithProgress = async (file: File): Promise<ProcessingResult> => {
+    const result = await processImageWASM(file, options);
+    completed++;
+    if (onProgress) {
+      onProgress(completed, total);
+    }
+    return result;
+  };
+
   // Process in batches with concurrency limit
   for (let i = 0; i < files.length; i += concurrency) {
     const batch = files.slice(i, i + concurrency);
     const batchResults = await Promise.all(
-      batch.map(file => processImageWASM(file, options))
+      batch.map(file => processWithProgress(file))
     );
-
     results.push(...batchResults);
-    completed += batch.length;
-
-    if (onProgress) {
-      onProgress(completed, total);
-    }
   }
 
   const batchEndTime = performance.now();
