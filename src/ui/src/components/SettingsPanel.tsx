@@ -12,9 +12,17 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
   const [resizeHeight, setResizeHeight] = React.useState<number>(768);
   const [outputFormat, setOutputFormat] = React.useState<string>('jpg');
   const [quality, setQuality] = React.useState<number>(85);
+
+  // Enhanced crop options
+  const [enableCrop, setEnableCrop] = React.useState<boolean>(false);
   const [cropTop, setCropTop] = React.useState<number>(0);
+  const [cropBottom, setCropBottom] = React.useState<number>(0);
+  const [cropLeft, setCropLeft] = React.useState<number>(0);
+  const [cropRight, setCropRight] = React.useState<number>(0);
+
   const [stripMetadata, setStripMetadata] = React.useState<boolean>(true);
   const [progressive, setProgressive] = React.useState<boolean>(false);
+  const [noUpscale, setNoUpscale] = React.useState<boolean>(true);
 
   const updatePipeline = () => {
     const operations: Pipeline['pipeline'] = [];
@@ -22,23 +30,34 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
     // Add metadata autorotate
     operations.push({ op: 'metadata', autorotate: true });
 
-    // Add crop if specified
-    if (cropTop > 0) {
-      operations.push({ op: 'crop', edge: 'top', value: cropTop });
+    // Add crop operations if enabled
+    if (enableCrop) {
+      if (cropTop > 0) {
+        operations.push({ op: 'crop', edge: 'top', value: cropTop });
+      }
+      if (cropBottom > 0) {
+        operations.push({ op: 'crop', edge: 'bottom', value: cropBottom });
+      }
+      if (cropLeft > 0) {
+        operations.push({ op: 'crop', edge: 'left', value: cropLeft });
+      }
+      if (cropRight > 0) {
+        operations.push({ op: 'crop', edge: 'right', value: cropRight });
+      }
     }
 
     // Add resize
     if (resizeMode === 'width') {
-      operations.push({ op: 'resize', mode: 'width', width: resizeWidth, noUpscale: true });
+      operations.push({ op: 'resize', mode: 'width', width: resizeWidth, noUpscale });
     } else if (resizeMode === 'height') {
-      operations.push({ op: 'resize', mode: 'height', height: resizeHeight, noUpscale: true });
+      operations.push({ op: 'resize', mode: 'height', height: resizeHeight, noUpscale });
     } else if (resizeMode === 'contain') {
       operations.push({
         op: 'resize',
         mode: 'contain',
         width: resizeWidth,
         height: resizeHeight,
-        noUpscale: true,
+        noUpscale,
       });
     }
 
@@ -63,7 +82,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
 
   React.useEffect(() => {
     updatePipeline();
-  }, [resizeMode, resizeWidth, resizeHeight, outputFormat, quality, cropTop, stripMetadata, progressive]);
+  }, [resizeMode, resizeWidth, resizeHeight, outputFormat, quality, enableCrop, cropTop, cropBottom, cropLeft, cropRight, stripMetadata, progressive, noUpscale]);
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 space-y-6">
@@ -71,7 +90,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
 
       {/* Resize Settings */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-700">Resize</h3>
+        <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
+          <span>📐</span> Resize
+        </h3>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -119,30 +140,126 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
             />
           </div>
         )}
+
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="noUpscale"
+            checked={noUpscale}
+            onChange={(e) => setNoUpscale(e.target.checked)}
+            className="w-4 h-4 text-primary-600 rounded"
+          />
+          <label htmlFor="noUpscale" className="text-sm font-medium text-gray-700">
+            Prevent upscaling (don't enlarge small images)
+          </label>
+        </div>
       </div>
 
-      {/* Crop Settings */}
+      {/* Enhanced Crop Settings */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-700">Crop</h3>
-
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Crop from top (px)
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
+            <span>✂️</span> Crop
+          </h3>
+          <label className="flex items-center gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={enableCrop}
+              onChange={(e) => setEnableCrop(e.target.checked)}
+              className="w-4 h-4 text-primary-600 rounded"
+            />
+            <span className="text-sm font-medium text-gray-700">Enable</span>
           </label>
-          <input
-            type="number"
-            value={cropTop}
-            onChange={(e) => setCropTop(parseInt(e.target.value) || 0)}
-            className="input-field"
-            min="0"
-            max="4000"
-          />
         </div>
+
+        {enableCrop && (
+          <div className="space-y-3 bg-gray-50 p-4 rounded-lg">
+            <p className="text-xs text-gray-600 mb-3">
+              Remove pixels from each edge (in pixels):
+            </p>
+
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  ⬆️ From Top
+                </label>
+                <input
+                  type="number"
+                  value={cropTop}
+                  onChange={(e) => setCropTop(parseInt(e.target.value) || 0)}
+                  className="input-field"
+                  min="0"
+                  max="4000"
+                  placeholder="0"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  ⬇️ From Bottom
+                </label>
+                <input
+                  type="number"
+                  value={cropBottom}
+                  onChange={(e) => setCropBottom(parseInt(e.target.value) || 0)}
+                  className="input-field"
+                  min="0"
+                  max="4000"
+                  placeholder="0"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  ⬅️ From Left
+                </label>
+                <input
+                  type="number"
+                  value={cropLeft}
+                  onChange={(e) => setCropLeft(parseInt(e.target.value) || 0)}
+                  className="input-field"
+                  min="0"
+                  max="4000"
+                  placeholder="0"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  ➡️ From Right
+                </label>
+                <input
+                  type="number"
+                  value={cropRight}
+                  onChange={(e) => setCropRight(parseInt(e.target.value) || 0)}
+                  className="input-field"
+                  min="0"
+                  max="4000"
+                  placeholder="0"
+                />
+              </div>
+            </div>
+
+            <button
+              onClick={() => {
+                setCropTop(0);
+                setCropBottom(0);
+                setCropLeft(0);
+                setCropRight(0);
+              }}
+              className="text-xs text-gray-600 hover:text-gray-800 underline"
+            >
+              Reset all crop values
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Format Settings */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-700">Format & Compression</h3>
+        <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
+          <span>🖼️</span> Format & Compression
+        </h3>
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -162,16 +279,20 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
 
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Quality: {quality}
+            Quality: <span className="text-primary-600 font-bold">{quality}</span>
           </label>
           <input
             type="range"
             value={quality}
             onChange={(e) => setQuality(parseInt(e.target.value))}
-            className="w-full"
+            className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary-600"
             min="1"
             max="100"
           />
+          <div className="flex justify-between text-xs text-gray-500 mt-1">
+            <span>Low (smaller file)</span>
+            <span>High (better quality)</span>
+          </div>
         </div>
 
         {outputFormat === 'jpg' && (
@@ -184,7 +305,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
               className="w-4 h-4 text-primary-600 rounded"
             />
             <label htmlFor="progressive" className="text-sm font-medium text-gray-700">
-              Progressive JPEG
+              Progressive JPEG (loads gradually)
             </label>
           </div>
         )}
@@ -192,7 +313,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
 
       {/* Metadata Settings */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-700">Metadata</h3>
+        <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
+          <span>🔒</span> Privacy & Metadata
+        </h3>
 
         <div className="flex items-center gap-2">
           <input
@@ -203,9 +326,15 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
             className="w-4 h-4 text-primary-600 rounded"
           />
           <label htmlFor="strip" className="text-sm font-medium text-gray-700">
-            Strip EXIF metadata
+            Strip EXIF metadata (location, camera info, etc.)
           </label>
         </div>
+
+        {stripMetadata && (
+          <p className="text-xs text-green-600 bg-green-50 p-2 rounded">
+            ✓ Recommended for privacy - removes all metadata from images
+          </p>
+        )}
       </div>
     </div>
   );

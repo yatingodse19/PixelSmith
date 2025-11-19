@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { FileDropzone } from './components/FileDropzone';
 import { SettingsPanel } from './components/SettingsPanel';
 import { PresetSelector } from './components/PresetSelector';
@@ -20,16 +22,26 @@ function App() {
 
   const handleFilesSelected = (files: File[]) => {
     setSelectedFiles(files);
+    toast.success(`${files.length} image(s) selected`, {
+      position: 'bottom-right',
+      autoClose: 2000,
+    });
   };
 
   const handleProcess = async () => {
     if (selectedFiles.length === 0) {
-      alert('Please select images first');
+      toast.error('Please select images first', {
+        position: 'top-center',
+      });
       return;
     }
 
     setProcessing(true);
     setResults([]);
+
+    const loadingToast = toast.loading(`Processing ${selectedFiles.length} image(s)...`, {
+      position: 'bottom-right',
+    });
 
     try {
       if (selectedFiles.length === 1) {
@@ -50,6 +62,13 @@ function App() {
 
         const result = await response.json();
         setResults([result]);
+
+        toast.update(loadingToast, {
+          render: '✓ Image processed successfully!',
+          type: 'success',
+          isLoading: false,
+          autoClose: 3000,
+        });
       } else {
         // Batch processing
         const formData = new FormData();
@@ -71,12 +90,25 @@ function App() {
 
         const data = await response.json();
         setResults(data.results);
-      }
 
-      alert(`Successfully processed ${selectedFiles.length} image(s)!`);
+        const successful = data.results.filter((r: ProcessingResult) => r.success).length;
+        const failed = data.results.length - successful;
+
+        toast.update(loadingToast, {
+          render: `✓ Processed ${successful} image(s) successfully${failed > 0 ? ` (${failed} failed)` : ''}`,
+          type: successful > 0 ? 'success' : 'error',
+          isLoading: false,
+          autoClose: 5000,
+        });
+      }
     } catch (error) {
       console.error('Processing error:', error);
-      alert(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.update(loadingToast, {
+        render: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        type: 'error',
+        isLoading: false,
+        autoClose: 5000,
+      });
     } finally {
       setProcessing(false);
     }
@@ -84,14 +116,35 @@ function App() {
 
   const handleClearResults = () => {
     setResults([]);
+    toast.info('Results cleared', {
+      position: 'bottom-right',
+      autoClose: 2000,
+    });
   };
 
   const handlePresetSelected = (newPipeline: Pipeline) => {
     setPipeline(newPipeline);
+    toast.success(`Preset "${newPipeline.name}" loaded`, {
+      position: 'bottom-right',
+      autoClose: 2000,
+    });
   };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      <ToastContainer
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="light"
+      />
+
       {/* Header */}
       <header className="bg-white shadow-sm border-b border-gray-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">

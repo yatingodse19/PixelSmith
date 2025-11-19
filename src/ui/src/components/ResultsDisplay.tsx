@@ -1,4 +1,5 @@
 import React from 'react';
+import JSZip from 'jszip';
 import type { ProcessingResult } from '../types';
 
 interface ResultsDisplayProps {
@@ -7,6 +8,8 @@ interface ResultsDisplayProps {
 }
 
 export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, onClear }) => {
+  const [downloading, setDownloading] = React.useState(false);
+
   if (results.length === 0) return null;
 
   const successCount = results.filter(r => r.success).length;
@@ -21,13 +24,91 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, onClear
     return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
   };
 
+  const handleDownloadAll = async () => {
+    const successfulResults = results.filter(r => r.success && r.outputUrl);
+
+    if (successfulResults.length === 0) {
+      alert('No images to download');
+      return;
+    }
+
+    if (successfulResults.length === 1) {
+      // Single file - direct download
+      const url = `http://localhost:3001${successfulResults[0].outputUrl}`;
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = successfulResults[0].outputPath?.split('/').pop() || 'image';
+      link.click();
+      return;
+    }
+
+    // Multiple files - create ZIP
+    setDownloading(true);
+    try {
+      const zip = new JSZip();
+
+      // Fetch all images and add to zip
+      for (const result of successfulResults) {
+        if (!result.outputUrl) continue;
+
+        const url = `http://localhost:3001${result.outputUrl}`;
+        const response = await fetch(url);
+        const blob = await response.blob();
+        const filename = result.outputPath?.split('/').pop() || `image_${Date.now()}.jpg`;
+
+        zip.file(filename, blob);
+      }
+
+      // Generate and download ZIP
+      const zipBlob = await zip.generateAsync({ type: 'blob' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(zipBlob);
+      link.download = `pixelsmith_${Date.now()}.zip`;
+      link.click();
+
+      // Cleanup
+      setTimeout(() => URL.revokeObjectURL(link.href), 100);
+    } catch (error) {
+      console.error('Failed to create ZIP:', error);
+      alert('Failed to download all images. Try downloading individually.');
+    } finally {
+      setDownloading(false);
+    }
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 space-y-6">
       <div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-800">Results</h2>
-        <button onClick={onClear} className="btn-secondary text-sm">
-          Clear
-        </button>
+        <div className="flex gap-2">
+          {successCount > 0 && (
+            <button
+              onClick={handleDownloadAll}
+              disabled={downloading}
+              className="btn-primary text-sm flex items-center gap-2"
+            >
+              {downloading ? (
+                <>
+                  <svg className="animate-spin h-4 w-4" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none" />
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                  </svg>
+                  Creating ZIP...
+                </>
+              ) : (
+                <>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  Download All ({successCount})
+                </>
+              )}
+            </button>
+          )}
+          <button onClick={onClear} className="btn-secondary text-sm">
+            Clear
+          </button>
+        </div>
       </div>
 
       {/* Summary */}
@@ -90,8 +171,11 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, onClear
                 <a
                   href={`http://localhost:3001${result.outputUrl}`}
                   download
-                  className="btn-primary text-sm whitespace-nowrap"
+                  className="btn-primary text-sm whitespace-nowrap flex items-center gap-1"
                 >
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
                   Download
                 </a>
               )}
