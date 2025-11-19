@@ -7,6 +7,7 @@ import { PresetSelector } from './components/PresetSelector';
 import { ResultsDisplay } from './components/ResultsDisplay';
 import { LoadingOverlay } from './components/LoadingOverlay';
 import type { Pipeline, ProcessingResult } from './types';
+import { processImageWASM, processBatchWASM, type ProcessingOptions } from './utils/wasmImageProcessor';
 
 function App() {
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
@@ -30,6 +31,35 @@ function App() {
     });
   };
 
+  // Convert Pipeline to ProcessingOptions for WASM processor
+  const pipelineToProcessingOptions = (pipeline: Pipeline): ProcessingOptions => {
+    const options: ProcessingOptions = {};
+
+    for (const op of pipeline.pipeline) {
+      if (op.op === 'resize') {
+        options.resize = {
+          mode: op.mode || 'none',
+          width: op.width,
+          height: op.height,
+          noUpscale: op.noUpscale,
+        };
+      } else if (op.op === 'crop') {
+        if (!options.crop) {
+          options.crop = {};
+        }
+        if (op.edge === 'top') options.crop.top = op.value;
+        if (op.edge === 'bottom') options.crop.bottom = op.value;
+        if (op.edge === 'left') options.crop.left = op.value;
+        if (op.edge === 'right') options.crop.right = op.value;
+      } else if (op.op === 'convert') {
+        options.format = op.format as 'jpg' | 'png' | 'webp' | 'avif';
+        options.quality = op.quality;
+      }
+    }
+
+    return options;
+  };
+
   const handleProcess = async () => {
     if (selectedFiles.length === 0) {
       toast.error('Please select images first', {
@@ -40,58 +70,41 @@ function App() {
 
     setProcessing(true);
     setResults([]);
-    setProcessingProgress(undefined);
+    setProcessingProgress({ current: 0, total: selectedFiles.length });
 
     try {
+      const options = pipelineToProcessingOptions(pipeline);
+
       if (selectedFiles.length === 1) {
-        // Single file processing
+        // Single file processing with WASM
         setProcessingProgress({ current: 1, total: 1 });
 
-        const formData = new FormData();
-        formData.append('image', selectedFiles[0]);
-        formData.append('pipeline', JSON.stringify(pipeline));
-
-        const response = await fetch('/api/process', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || 'Processing failed');
-        }
-
-        const result = await response.json();
+        const result = await processImageWASM(selectedFiles[0], options);
         setResults([result]);
 
-        toast.success('✓ Image processed successfully!', {
-          position: 'bottom-right',
-          autoClose: 3000,
-        });
-      } else {
-        // Batch processing
-        const formData = new FormData();
-        selectedFiles.forEach(file => {
-          formData.append('images', file);
-        });
-        formData.append('pipeline', JSON.stringify(pipeline));
-        formData.append('concurrency', '4');
-
-        const response = await fetch('/api/process-batch', {
-          method: 'POST',
-          body: formData,
-        });
-
-        if (!response.ok) {
-          const error = await response.json();
-          throw new Error(error.error || 'Batch processing failed');
+        if (result.success) {
+          toast.success('✓ Image processed successfully!', {
+            position: 'bottom-right',
+            autoClose: 3000,
+          });
+        } else {
+          throw new Error(result.error || 'Processing failed');
         }
+      } else {
+        // Batch processing with WASM
+        const results = await processBatchWASM(
+          selectedFiles,
+          options,
+          4, // concurrency
+          (current, total) => {
+            setProcessingProgress({ current, total });
+          }
+        );
 
-        const data = await response.json();
-        setResults(data.results);
+        setResults(results);
 
-        const successful = data.results.filter((r: ProcessingResult) => r.success).length;
-        const failed = data.results.length - successful;
+        const successful = results.filter(r => r.success).length;
+        const failed = results.length - successful;
 
         toast.success(
           `✓ Processed ${successful} image(s) successfully${failed > 0 ? ` (${failed} failed)` : ''}`,
@@ -160,7 +173,7 @@ function App() {
                 🎨 PixelSmith
               </h1>
               <p className="mt-1 text-sm text-gray-600">
-                Privacy-first image processing • 100% local • No uploads
+                Privacy-first image processing • 100% browser-based • WebAssembly powered
               </p>
             </div>
             <div className="text-right">
@@ -277,10 +290,10 @@ function App() {
                 </svg>
                 <div>
                   <p className="font-semibold text-green-900 text-sm">
-                    Privacy Protected
+                    Privacy Protected ⚡ WebAssembly
                   </p>
                   <p className="text-green-700 text-xs mt-1">
-                    All processing happens on your computer. Your images never leave your device.
+                    Lightning-fast processing directly in your browser. Your images never leave your device.
                   </p>
                 </div>
               </div>
