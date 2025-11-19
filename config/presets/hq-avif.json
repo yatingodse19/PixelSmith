@@ -1,0 +1,25 @@
+{
+  "name": "hq-avif",
+  "pipeline": [
+    {
+      "op": "metadata",
+      "autorotate": true,
+      "strip": true
+    },
+    {
+      "op": "resize",
+      "mode": "width",
+      "value": 1600,
+      "noUpscale": true
+    },
+    {
+      "op": "convert",
+      "format": "avif",
+      "cq": 25,
+      "speed": 4
+    }
+  ],
+  "output": {
+    "pattern": "{base}_avif.avif"
+  }
+}

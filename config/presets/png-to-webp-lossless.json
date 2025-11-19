@@ -1,0 +1,18 @@
+{
+  "name": "png-to-webp-lossless",
+  "pipeline": [
+    {
+      "op": "metadata",
+      "autorotate": true,
+      "strip": true
+    },
+    {
+      "op": "convert",
+      "format": "webp",
+      "lossless": true
+    }
+  ],
+  "output": {
+    "pattern": "{base}.webp"
+  }
+}

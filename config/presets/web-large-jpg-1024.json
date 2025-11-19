@@ -1,0 +1,25 @@
+{
+  "name": "web-large-jpg-1024",
+  "pipeline": [
+    {
+      "op": "metadata",
+      "autorotate": true,
+      "strip": true
+    },
+    {
+      "op": "resize",
+      "mode": "width",
+      "value": 1024,
+      "noUpscale": true
+    },
+    {
+      "op": "convert",
+      "format": "jpg",
+      "quality": 85,
+      "progressive": true
+    }
+  ],
+  "output": {
+    "pattern": "{base}_1024w.jpg"
+  }
+}

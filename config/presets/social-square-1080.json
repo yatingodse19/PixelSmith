@@ -1,0 +1,26 @@
+{
+  "name": "social-square-1080",
+  "pipeline": [
+    {
+      "op": "metadata",
+      "autorotate": true,
+      "strip": true
+    },
+    {
+      "op": "resize",
+      "mode": "contain",
+      "width": 1080,
+      "height": 1080,
+      "noUpscale": false
+    },
+    {
+      "op": "convert",
+      "format": "jpg",
+      "quality": 90,
+      "progressive": false
+    }
+  ],
+  "output": {
+    "pattern": "{base}_1080sq.jpg"
+  }
+}

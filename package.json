@@ -1,0 +1,52 @@
+{
+  "name": "pixelsmith",
+  "version": "1.0.0",
+  "description": "Privacy-first, offline image resizer, converter, and batch processor",
+  "main": "dist/index.js",
+  "type": "module",
+  "bin": {
+    "pixelsmith": "./dist/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "start": "node dist/cli/index.js",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "lint": "eslint src --ext .ts",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "image",
+    "resize",
+    "convert",
+    "compress",
+    "batch",
+    "offline",
+    "privacy",
+    "sharp",
+    "libvips"
+  ],
+  "author": "yatin godse",
+  "license": "MIT",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "sharp": "^0.33.2",
+    "yargs": "^17.7.2",
+    "chalk": "^5.3.0",
+    "ora": "^8.0.1",
+    "p-queue": "^8.0.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "@types/yargs": "^17.0.32",
+    "@typescript-eslint/eslint-plugin": "^6.19.1",
+    "@typescript-eslint/parser": "^6.19.1",
+    "eslint": "^8.56.0",
+    "typescript": "^5.3.3",
+    "vitest": "^1.2.1",
+    "pixelmatch": "^5.3.0"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "name": "crop-top-web-1024",
+  "pipeline": [
+    {
+      "op": "metadata",
+      "autorotate": true
+    },
+    {
+      "op": "crop",
+      "edge": "top",
+      "value": 200
+    },
+    {
+      "op": "resize",
+      "mode": "width",
+      "value": 1024,
+      "noUpscale": true
+    },
+    {
+      "op": "convert",
+      "format": "jpg",
+      "quality": 80,
+      "progressive": true
+    },
+    {
+      "op": "metadata",
+      "strip": true
+    }
+  ],
+  "output": {
+    "pattern": "{base}_1024_crop.jpg"
+  }
+}
