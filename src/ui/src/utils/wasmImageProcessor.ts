@@ -45,9 +45,13 @@ async function ensureWasmInitialized(): Promise<void> {
       wasmInitialized = true;
       console.log('[WASM] Photon initialized successfully');
     } catch (error) {
-      console.error('[WASM] Failed to initialize Photon:', error);
+      console.error('[WASM] Failed to initialize Photon. Details:', error);
+      if (error instanceof Error) {
+        console.error('[WASM] Error message:', error.message);
+        console.error('[WASM] Error stack:', error.stack);
+      }
       wasmInitPromise = null; // Allow retry
-      throw new Error('Failed to initialize WebAssembly module');
+      throw new Error(`Failed to initialize WebAssembly module: ${error instanceof Error ? error.message : 'Unknown error'}`);
     }
   })();
 
