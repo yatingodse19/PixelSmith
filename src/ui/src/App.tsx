@@ -5,6 +5,7 @@ import { FileDropzone } from './components/FileDropzone';
 import { SettingsPanel } from './components/SettingsPanel';
 import { PresetSelector } from './components/PresetSelector';
 import { ResultsDisplay } from './components/ResultsDisplay';
+import { LoadingOverlay } from './components/LoadingOverlay';
 import type { Pipeline, ProcessingResult } from './types';
 
 function App() {
@@ -18,6 +19,7 @@ function App() {
     ],
   });
   const [processing, setProcessing] = useState(false);
+  const [processingProgress, setProcessingProgress] = useState<{ current: number; total: number } | undefined>();
   const [results, setResults] = useState<ProcessingResult[]>([]);
 
   const handleFilesSelected = (files: File[]) => {
@@ -38,14 +40,13 @@ function App() {
 
     setProcessing(true);
     setResults([]);
-
-    const loadingToast = toast.loading(`Processing ${selectedFiles.length} image(s)...`, {
-      position: 'bottom-right',
-    });
+    setProcessingProgress(undefined);
 
     try {
       if (selectedFiles.length === 1) {
         // Single file processing
+        setProcessingProgress({ current: 1, total: 1 });
+
         const formData = new FormData();
         formData.append('image', selectedFiles[0]);
         formData.append('pipeline', JSON.stringify(pipeline));
@@ -63,14 +64,15 @@ function App() {
         const result = await response.json();
         setResults([result]);
 
-        toast.update(loadingToast, {
-          render: '✓ Image processed successfully!',
-          type: 'success',
-          isLoading: false,
+        toast.success('✓ Image processed successfully!', {
+          position: 'bottom-right',
           autoClose: 3000,
         });
       } else {
-        // Batch processing
+        // Batch processing - simulate progress
+        setProcessingProgress({ current: 0, total: selectedFiles.length });
+
+        // Start processing
         const formData = new FormData();
         selectedFiles.forEach(file => {
           formData.append('images', file);
@@ -78,10 +80,20 @@ function App() {
         formData.append('pipeline', JSON.stringify(pipeline));
         formData.append('concurrency', '4');
 
+        // Simulate progress updates
+        const progressInterval = setInterval(() => {
+          setProcessingProgress(prev => {
+            if (!prev || prev.current >= prev.total) return prev;
+            return { current: prev.current + 1, total: prev.total };
+          });
+        }, 500); // Update every 500ms
+
         const response = await fetch('/api/process-batch', {
           method: 'POST',
           body: formData,
         });
+
+        clearInterval(progressInterval);
 
         if (!response.ok) {
           const error = await response.json();
@@ -94,23 +106,23 @@ function App() {
         const successful = data.results.filter((r: ProcessingResult) => r.success).length;
         const failed = data.results.length - successful;
 
-        toast.update(loadingToast, {
-          render: `✓ Processed ${successful} image(s) successfully${failed > 0 ? ` (${failed} failed)` : ''}`,
-          type: successful > 0 ? 'success' : 'error',
-          isLoading: false,
-          autoClose: 5000,
-        });
+        toast.success(
+          `✓ Processed ${successful} image(s) successfully${failed > 0 ? ` (${failed} failed)` : ''}`,
+          {
+            position: 'bottom-right',
+            autoClose: 5000,
+          }
+        );
       }
     } catch (error) {
       console.error('Processing error:', error);
-      toast.update(loadingToast, {
-        render: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
-        type: 'error',
-        isLoading: false,
+      toast.error(`Error: ${error instanceof Error ? error.message : 'Unknown error'}`, {
+        position: 'bottom-right',
         autoClose: 5000,
       });
     } finally {
       setProcessing(false);
+      setProcessingProgress(undefined);
     }
   };
 
@@ -132,6 +144,13 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+      {/* Loading Overlay */}
+      <LoadingOverlay
+        isVisible={processing}
+        message={selectedFiles.length === 1 ? 'Processing your image...' : `Processing ${selectedFiles.length} images...`}
+        progress={processingProgress}
+      />
+
       <ToastContainer
         position="bottom-right"
         autoClose={3000}
