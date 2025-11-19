@@ -21,6 +21,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
   const [cropLeft, setCropLeft] = React.useState<number>(0);
   const [cropRight, setCropRight] = React.useState<number>(0);
 
+  // Privacy & metadata options
+  const [progressive, setProgressive] = React.useState<boolean>(false);
+  const [stripMetadata, setStripMetadata] = React.useState<boolean>(true); // Always true by default
+
   const updatePipeline = () => {
     const operations: Pipeline['pipeline'] = [];
 
@@ -61,6 +65,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
       op: 'convert',
       format: outputFormat,
       quality,
+      progressive,
+      stripMetadata,
     });
 
     onChange({
@@ -71,7 +77,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
 
   React.useEffect(() => {
     updatePipeline();
-  }, [resizeMode, resizeWidth, resizeHeight, outputFormat, quality, enableCrop, cropTop, cropBottom, cropLeft, cropRight, noUpscale]);
+  }, [resizeMode, resizeWidth, resizeHeight, outputFormat, quality, enableCrop, cropTop, cropBottom, cropLeft, cropRight, noUpscale, progressive, stripMetadata]);
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 space-y-6">
@@ -301,6 +307,60 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
           <div className={`flex justify-between text-xs mt-1 ${outputFormat !== 'png' ? 'text-gray-500' : 'text-gray-400'}`}>
             <span>Low (smaller file)</span>
             <span>High (better quality)</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Privacy & Metadata */}
+      <div className="space-y-4">
+        <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
+          <span>🔒</span> Privacy & Metadata
+        </h3>
+
+        <div className="space-y-3">
+          {/* Progressive JPEG */}
+          <label className="flex items-center gap-3 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={progressive}
+              onChange={(e) => setProgressive(e.target.checked)}
+              disabled={outputFormat !== 'jpg'}
+              className={`w-4 h-4 rounded ${outputFormat === 'jpg' ? 'text-primary-600 cursor-pointer' : 'cursor-not-allowed opacity-50'}`}
+            />
+            <div className="flex-1">
+              <span className={`text-sm font-medium ${outputFormat === 'jpg' ? 'text-gray-700' : 'text-gray-400'}`}>
+                Progressive JPEG
+              </span>
+              <p className="text-xs text-gray-500">
+                Loads gradually (top to bottom). Slightly larger files but better user experience.
+                {outputFormat !== 'jpg' && <span className="text-amber-600"> (JPEG only)</span>}
+              </p>
+            </div>
+          </label>
+
+          {/* Strip EXIF Metadata */}
+          <label className="flex items-center gap-3">
+            <input
+              type="checkbox"
+              checked={stripMetadata}
+              onChange={(e) => setStripMetadata(e.target.checked)}
+              disabled={true}
+              className="w-4 h-4 rounded text-primary-600 cursor-not-allowed opacity-50"
+            />
+            <div className="flex-1">
+              <span className="text-sm font-medium text-gray-700">
+                Strip EXIF Metadata <span className="text-green-600 text-xs">(Always ON)</span>
+              </span>
+              <p className="text-xs text-gray-500">
+                Removes camera info, GPS location, timestamps for privacy. Enabled by default.
+              </p>
+            </div>
+          </label>
+
+          <div className="bg-green-50 border-l-4 border-green-400 p-3 rounded mt-2">
+            <p className="text-xs text-green-800">
+              ✓ <strong>Privacy-first:</strong> All images are automatically stripped of EXIF metadata during processing.
+            </p>
           </div>
         </div>
       </div>

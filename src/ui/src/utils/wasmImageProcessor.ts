@@ -7,12 +7,15 @@
  * Libraries used:
  * - Photon: Resize, crop, and image manipulation
  * - @jsquash/webp: Lossy WebP compression with quality control
+ * - @jsquash/jpeg: MozJPEG encoder with progressive JPEG support
  *
  * Supported operations:
  * - Resize (width, height, contain modes)
  * - Crop (top, bottom, left, right edges)
  * - Format conversion (JPEG, PNG, WebP with quality control)
  * - Quality/compression settings
+ * - Progressive JPEG encoding
+ * - Automatic EXIF stripping (privacy-first)
  *
  * Note: AVIF format is not supported yet, will fall back to WebP.
  */
@@ -24,6 +27,7 @@ import initPhoton, {
   SamplingFilter,
 } from '@silvia-odwyer/photon';
 import { encode as encodeWebP } from '@jsquash/webp';
+import { encode as encodeJPEG } from '@jsquash/jpeg';
 
 // WASM initialization state
 let wasmInitialized = false;
@@ -78,6 +82,8 @@ export interface ProcessingOptions {
   };
   format?: 'jpg' | 'png' | 'webp' | 'avif';
   quality?: number;
+  progressive?: boolean; // Progressive JPEG encoding
+  stripMetadata?: boolean; // Strip EXIF metadata (always happens by default)
 }
 
 export interface ProcessingResult {
@@ -199,37 +205,57 @@ function applyResize(
 }
 
 /**
+ * Convert PhotonImage to ImageData
+ * Helper function for @jsquash encoders
+ */
+function photonToImageData(img: PhotonImage): ImageData {
+  const width = img.get_width();
+  const height = img.get_height();
+  const rawPixels = img.get_raw_pixels();
+
+  return new ImageData(
+    new Uint8ClampedArray(rawPixels),
+    width,
+    height
+  );
+}
+
+/**
  * Convert PhotonImage to output format
  *
- * Uses @jsquash/webp for proper lossy WebP compression with quality control.
- * This gives smaller file sizes than JPEG while maintaining good quality.
+ * Uses @jsquash libraries for better compression:
+ * - @jsquash/jpeg: MozJPEG with progressive support and better compression
+ * - @jsquash/webp: Lossy WebP with quality control
+ * - Photon: PNG (lossless)
  */
-async function getImageBytes(img: PhotonImage, format: string, quality: number): Promise<Uint8Array> {
+async function getImageBytes(
+  img: PhotonImage,
+  format: string,
+  quality: number,
+  progressive: boolean = false
+): Promise<Uint8Array> {
   switch (format) {
     case 'jpg':
-    case 'jpeg':
-      // JPEG supports quality control (1-100)
-      return img.get_bytes_jpeg(quality);
+    case 'jpeg': {
+      // Use MozJPEG for better compression and progressive support
+      const imageData = photonToImageData(img);
+
+      console.log(`[WASM] Encoding JPEG with quality ${quality}${progressive ? ' (progressive)' : ''}`);
+      const jpegArrayBuffer = await encodeJPEG(imageData, {
+        quality,
+        progressive
+      });
+      return new Uint8Array(jpegArrayBuffer);
+    }
 
     case 'webp':
     case 'avif': {
       // Use @jsquash/webp for lossy compression with quality control
-      // This provides smaller files than JPEG with better quality
       if (format === 'avif') {
         console.warn('AVIF format not supported yet, using WebP with quality control instead');
       }
 
-      // Convert PhotonImage to ImageData
-      const width = img.get_width();
-      const height = img.get_height();
-      const rawPixels = img.get_raw_pixels();
-
-      // Create ImageData from raw pixels
-      const imageData = new ImageData(
-        new Uint8ClampedArray(rawPixels),
-        width,
-        height
-      );
+      const imageData = photonToImageData(img);
 
       // Encode with @jsquash/webp (supports quality 0-100)
       console.log(`[WASM] Encoding WebP with quality ${quality}`);
@@ -240,6 +266,7 @@ async function getImageBytes(img: PhotonImage, format: string, quality: number):
     case 'png':
     default:
       // PNG is always lossless
+      console.log('[WASM] Encoding PNG (lossless)');
       return img.get_bytes();
   }
 }
@@ -297,7 +324,11 @@ export async function processImageWASM(
     // Convert to output format
     const format = options.format || 'png';
     const quality = options.quality || 80;
-    const outputBytes = await getImageBytes(img, format, quality);
+    const progressive = options.progressive || false;
+    const outputBytes = await getImageBytes(img, format, quality, progressive);
+
+    // Note: EXIF metadata is automatically stripped during decode/encode
+    // This ensures privacy by default (stripMetadata option is always true)
 
     // Create blob and URL
     const mimeType = getMimeType(format);

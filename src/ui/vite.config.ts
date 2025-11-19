@@ -13,7 +13,7 @@ export default defineConfig({
     port: 3000,
   },
   optimizeDeps: {
-    exclude: ['@silvia-odwyer/photon', '@jsquash/webp'],
+    exclude: ['@silvia-odwyer/photon', '@jsquash/webp', '@jsquash/jpeg'],
   },
   build: {
     outDir: 'dist',
