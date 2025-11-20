@@ -185,11 +185,16 @@ function App() {
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - File Upload */}
+          {/* Left Column - Settings, Upload, and Process */}
           <div className="lg:col-span-2 space-y-6">
+            {/* Step 1: Configure Settings */}
+            <PresetSelector onPresetSelected={handlePresetSelected} />
+            <SettingsPanel pipeline={pipeline} onChange={setPipeline} />
+
+            {/* Step 2: Select Images */}
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                1. Select Images
+                2. Select Images
               </h2>
               <FileDropzone onFilesSelected={handleFilesSelected} />
               {selectedFiles.length > 0 && (
@@ -212,7 +217,7 @@ function App() {
               )}
             </div>
 
-            {/* Process Button */}
+            {/* Step 3: Process Button */}
             <div className="bg-white rounded-xl shadow-lg p-6">
               <h2 className="text-2xl font-bold text-gray-800 mb-4">
                 3. Process Images
@@ -265,11 +270,8 @@ function App() {
             )}
           </div>
 
-          {/* Right Column - Settings */}
+          {/* Right Column - Info & Tips */}
           <div className="space-y-6">
-            <PresetSelector onPresetSelected={handlePresetSelected} />
-            <SettingsPanel pipeline={pipeline} onChange={setPipeline} />
-
             {/* Privacy Notice */}
             <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4">
               <div className="flex items-start gap-3">
@@ -295,6 +297,64 @@ function App() {
                   </p>
                 </div>
               </div>
+            </div>
+
+            {/* Quick Tips */}
+            <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+              <h3 className="font-semibold text-blue-900 text-sm mb-3 flex items-center gap-2">
+                <span>💡</span> Quick Tips
+              </h3>
+              <ul className="space-y-2 text-xs text-blue-800">
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600 mt-0.5">•</span>
+                  <span>Use <strong>Presets</strong> for common tasks like thumbnails or web optimization</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600 mt-0.5">•</span>
+                  <span><strong>WebP format</strong> typically gives 25-35% smaller files than JPEG</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600 mt-0.5">•</span>
+                  <span>Quality <strong>85</strong> is a good balance between size and quality</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-blue-600 mt-0.5">•</span>
+                  <span>Batch process multiple images at once for faster workflow</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Features Overview */}
+            <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-4">
+              <h3 className="font-semibold text-purple-900 text-sm mb-3 flex items-center gap-2">
+                <span>✨</span> Features
+              </h3>
+              <ul className="space-y-2 text-xs text-purple-800">
+                <li className="flex items-start gap-2">
+                  <span className="text-purple-600">✓</span>
+                  <span>Resize with multiple modes (width, height, contain)</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-purple-600">✓</span>
+                  <span>Crop from any edge (top, bottom, left, right)</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-purple-600">✓</span>
+                  <span>Convert to JPEG, PNG, or WebP with quality control</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-purple-600">✓</span>
+                  <span>Automatic EXIF metadata removal for privacy</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-purple-600">✓</span>
+                  <span>Progressive JPEG for better loading experience</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-purple-600">✓</span>
+                  <span>Batch processing with real-time progress</span>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
