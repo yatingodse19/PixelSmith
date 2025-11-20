@@ -81,7 +81,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800">2. Configure Settings</h2>
+      <h2 className="text-2xl font-bold text-gray-800">1. Configure Settings</h2>
 
       {/* Resize Settings */}
       <div className="space-y-4">
@@ -339,17 +339,16 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
           </label>
 
           {/* Strip EXIF Metadata */}
-          <label className="flex items-center gap-3">
+          <label className="flex items-center gap-3 cursor-pointer">
             <input
               type="checkbox"
               checked={stripMetadata}
               onChange={(e) => setStripMetadata(e.target.checked)}
-              disabled={true}
-              className="w-4 h-4 rounded text-primary-600 cursor-not-allowed opacity-50"
+              className="w-4 h-4 rounded text-primary-600 cursor-pointer"
             />
             <div className="flex-1">
               <span className="text-sm font-medium text-gray-700">
-                Strip EXIF Metadata <span className="text-green-600 text-xs">(Always ON)</span>
+                Strip EXIF Metadata <span className="text-blue-600 text-xs">(Recommended)</span>
               </span>
               <p className="text-xs text-gray-500">
                 Removes camera info, GPS location, timestamps for privacy. Enabled by default.
@@ -357,9 +356,13 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
             </div>
           </label>
 
-          <div className="bg-green-50 border-l-4 border-green-400 p-3 rounded mt-2">
-            <p className="text-xs text-green-800">
-              ✓ <strong>Privacy-first:</strong> All images are automatically stripped of EXIF metadata during processing.
+          <div className={`border-l-4 p-3 rounded mt-2 ${stripMetadata ? 'bg-green-50 border-green-400' : 'bg-amber-50 border-amber-400'}`}>
+            <p className={`text-xs ${stripMetadata ? 'text-green-800' : 'text-amber-800'}`}>
+              {stripMetadata ? (
+                <>✓ <strong>Privacy-first:</strong> EXIF metadata will be removed from processed images.</>
+              ) : (
+                <>⚠️ <strong>Privacy notice:</strong> EXIF metadata will be preserved. This may include GPS location, camera info, and timestamps.</>
+              )}
             </p>
           </div>
         </div>
