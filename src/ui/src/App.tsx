@@ -188,7 +188,6 @@ function App() {
           {/* Left Column - Settings, Upload, and Process */}
           <div className="lg:col-span-2 space-y-6">
             {/* Step 1: Configure Settings */}
-            <PresetSelector onPresetSelected={handlePresetSelected} />
             <SettingsPanel pipeline={pipeline} onChange={setPipeline} />
 
             {/* Step 2: Select Images */}
@@ -270,8 +269,11 @@ function App() {
             )}
           </div>
 
-          {/* Right Column - Info & Tips */}
+          {/* Right Column - Presets & Info */}
           <div className="space-y-6">
+            {/* Quick Presets */}
+            <PresetSelector onPresetSelected={handlePresetSelected} />
+
             {/* Privacy Notice */}
             <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4">
               <div className="flex items-start gap-3">
