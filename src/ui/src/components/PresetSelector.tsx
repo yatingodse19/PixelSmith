@@ -287,7 +287,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
                   </label>
                   <input
                     type="number"
-                    value={cropTop}
+                    value={cropTop === 0 ? '' : cropTop}
                     onChange={(e) => setCropTop(parseInt(e.target.value) || 0)}
                     className="input-field"
                     min="0"
@@ -305,7 +305,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
                   </label>
                   <input
                     type="number"
-                    value={cropBottom}
+                    value={cropBottom === 0 ? '' : cropBottom}
                     onChange={(e) => setCropBottom(parseInt(e.target.value) || 0)}
                     className="input-field"
                     min="0"
@@ -323,7 +323,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
                   </label>
                   <input
                     type="number"
-                    value={cropLeft}
+                    value={cropLeft === 0 ? '' : cropLeft}
                     onChange={(e) => setCropLeft(parseInt(e.target.value) || 0)}
                     className="input-field"
                     min="0"
@@ -341,7 +341,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
                   </label>
                   <input
                     type="number"
-                    value={cropRight}
+                    value={cropRight === 0 ? '' : cropRight}
                     onChange={(e) => setCropRight(parseInt(e.target.value) || 0)}
                     className="input-field"
                     min="0"

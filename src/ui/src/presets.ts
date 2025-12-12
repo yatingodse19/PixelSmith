@@ -25,50 +25,50 @@ export const PRESET_CATEGORIES: PresetCategory[] = [
     category: 'Web Optimization',
     presets: [
       {
-        name: 'Optimize for Web (800px, WebP)',
-        shortName: '800px WebP Quality 80',
+        name: 'Optimize for Web (800px, JPEG)',
+        shortName: '800px JPEG Quality 80',
         description: 'Smaller size, great for mobile',
         actions: [
           'Resize to 800px width',
-          'Convert to WebP format (80% quality)',
+          'Convert to JPEG format (80% quality)',
           'Remove metadata for privacy'
         ],
         pipeline: {
           pipeline: [
             { op: 'resize', mode: 'width', width: 800, noUpscale: true },
-            { op: 'convert', format: 'webp', quality: 80, stripMetadata: true },
+            { op: 'convert', format: 'jpg', quality: 80, stripMetadata: true },
           ],
         },
       },
       {
-        name: 'Optimize for Web (1024px, WebP)',
-        shortName: '1024px WebP Quality 85',
+        name: 'Optimize for Web (1024px, JPEG)',
+        shortName: '1024px JPEG Quality 85',
         description: 'Perfect for websites and blogs',
         actions: [
           'Resize to 1024px width',
-          'Convert to WebP format (85% quality)',
+          'Convert to JPEG format (85% quality)',
           'Remove metadata for privacy'
         ],
         pipeline: {
           pipeline: [
             { op: 'resize', mode: 'width', width: 1024, noUpscale: true },
-            { op: 'convert', format: 'webp', quality: 85, stripMetadata: true },
+            { op: 'convert', format: 'jpg', quality: 85, stripMetadata: true },
           ],
         },
       },
       {
-        name: 'Optimize for Web (1920px, WebP)',
-        shortName: '1920px WebP Quality 90',
+        name: 'Optimize for Web (1920px, JPEG)',
+        shortName: '1920px JPEG Quality 90',
         description: 'Large screens with excellent quality',
         actions: [
           'Resize to 1920px width',
-          'Convert to WebP format (90% quality)',
+          'Convert to JPEG format (90% quality)',
           'Remove metadata for privacy'
         ],
         pipeline: {
           pipeline: [
             { op: 'resize', mode: 'width', width: 1920, noUpscale: true },
-            { op: 'convert', format: 'webp', quality: 90, stripMetadata: true },
+            { op: 'convert', format: 'jpg', quality: 90, stripMetadata: true },
           ],
         },
       },

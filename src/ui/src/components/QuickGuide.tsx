@@ -9,7 +9,7 @@ export const QuickGuide: React.FC<QuickGuideProps> = ({ selectedPreset }) => {
   const getContextualTips = (): string[] => {
     if (selectedPreset.includes('Web')) {
       return [
-        'WebP format gives 25-35% smaller files than JPEG',
+        'JPEG is widely supported across all browsers',
         'Quality 85 is perfect for web - good balance',
         'Enable crop to remove unwanted edges',
         '1024px width works great for most websites'
@@ -54,7 +54,7 @@ export const QuickGuide: React.FC<QuickGuideProps> = ({ selectedPreset }) => {
     // Default tips
     return [
       'Use presets for common tasks',
-      'WebP format gives best compression',
+      'JPEG format is universally supported',
       'Quality 85 is a good balance',
       'Batch process multiple images at once'
     ];
