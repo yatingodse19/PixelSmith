@@ -61,9 +61,9 @@ export const QuickGuide: React.FC<QuickGuideProps> = ({ selectedPreset }) => {
   };
 
   return (
-    <div className="space-y-6">
-      {/* Privacy Notice */}
-      <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4">
+    <>
+      {/* Privacy Notice Box */}
+      <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 h-full">
         <div className="flex items-start gap-3">
           <svg
             className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5"
@@ -80,17 +80,17 @@ export const QuickGuide: React.FC<QuickGuideProps> = ({ selectedPreset }) => {
           </svg>
           <div>
             <p className="font-semibold text-green-900 text-sm">
-              Privacy Protected ⚡ WebAssembly
+              🔒 Privacy Protected
             </p>
             <p className="text-green-700 text-xs mt-1">
-              Lightning-fast processing directly in your browser. Your images never leave your device.
+              Lightning-fast processing with WebAssembly. Your images never leave your device.
             </p>
           </div>
         </div>
       </div>
 
-      {/* Quick Tips (Context-Aware) */}
-      <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+      {/* Quick Tips Box (Context-Aware) */}
+      <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 h-full">
         <h3 className="font-semibold text-blue-900 text-sm mb-3 flex items-center gap-2">
           <span>💡</span> Quick Tips
         </h3>
@@ -104,38 +104,34 @@ export const QuickGuide: React.FC<QuickGuideProps> = ({ selectedPreset }) => {
         </ul>
       </div>
 
-      {/* Features Overview */}
-      <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-4">
+      {/* Features Box */}
+      <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-4 h-full">
         <h3 className="font-semibold text-purple-900 text-sm mb-3 flex items-center gap-2">
           <span>✨</span> Features
         </h3>
         <ul className="space-y-2 text-xs text-purple-800">
           <li className="flex items-start gap-2">
             <span className="text-purple-600">✓</span>
-            <span>Resize with multiple modes (width, height, contain)</span>
+            <span>Resize images (width, height, contain)</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-purple-600">✓</span>
-            <span>Crop from any edge (top, bottom, left, right)</span>
+            <span>Crop from any edge (pixels or %)</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-purple-600">✓</span>
-            <span>Preserves original format or convert to JPEG/PNG/WebP</span>
+            <span>Preserves format or convert</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-purple-600">✓</span>
-            <span>Automatic EXIF metadata removal for privacy</span>
+            <span>Removes EXIF metadata</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-purple-600">✓</span>
-            <span>Progressive JPEG for better loading experience</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-purple-600">✓</span>
-            <span>Batch processing with real-time progress</span>
+            <span>Batch processing support</span>
           </li>
         </ul>
       </div>
-    </div>
+    </>
   );
 };
