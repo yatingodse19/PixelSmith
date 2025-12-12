@@ -5,6 +5,157 @@ All notable changes to PixelSmith will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2025-12-13
+
+### 🎨 Major: UI/UX Redesign - Preset-First Approach
+
+This release focuses on simplifying the user interface based on feedback that the previous design was too technical and overwhelming for non-technical users.
+
+#### Added
+
+- **Format Preservation (Auto-Detection)** (`src/ui/src/utils/wasmImageProcessor.ts`)
+  - New `'auto'` format option preserves original image format
+  - PNG stays PNG (preserves transparency)
+  - JPEG stays JPEG (preserves compression characteristics)
+  - WebP stays WebP (preserves modern format)
+  - Intelligent format detection based on file extension via `detectFormatFromFile()`
+  - All presets now use format preservation by default
+
+- **Crop by Pixels or Percentage** (`src/ui/src/components/SettingsPanel.tsx`)
+  - Toggle between pixel-based and percentage-based cropping
+  - Percentage values calculated based on actual image dimensions at processing time
+  - Real-time conversion: `getPixelValue()` in WASM processor
+  - UI shows appropriate units (px or %) based on selected mode
+  - Max values adjust automatically (4000px or 100%)
+
+- **Preset-First UI Design** (`src/ui/src/components/PresetSelector.tsx`)
+  - Categorized preset dropdown (Web Optimization, Thumbnails & Email, Social Media, etc.)
+  - Live preview of actions that will be performed
+  - Optional crop addon with pixels/percentage toggle
+  - "Custom Settings" preset for advanced users with full control
+
+- **2-Column Responsive Layout** (`src/ui/src/App.tsx`)
+  - Left column: Configuration options (preset selector)
+  - Right column: Upload, process button, and results
+  - Mobile-friendly: Stacks vertically on screens < 768px
+  - Bottom section: 3 info boxes (Privacy, Quick Tips, Features)
+
+- **Context-Aware Tips** (`src/ui/src/components/QuickGuide.tsx`)
+  - Tips change based on selected preset
+  - Different guidance for Web, Thumbnail, Email, Social, Convert, and Custom presets
+  - Split into 3 separate boxes: Privacy, Quick Tips, Features
+  - Color-coded with green (privacy), blue (tips), purple (features)
+
+- **Strip EXIF Metadata Toggle** (`src/ui/src/components/SettingsPanel.tsx`)
+  - Made optional instead of always-on
+  - Enabled by default for privacy
+  - Visual indicator shows privacy status (green/amber)
+  - Warning message when disabled about GPS/metadata preservation
+
+#### Changed
+
+- **Preset Organization** (`src/ui/src/presets.ts`)
+  - Reorganized into 5 categories:
+    - Web Optimization (3 presets: 800px, 1024px, 1920px)
+    - Thumbnails & Email (2 presets: 300px, 600px)
+    - Social Media (1 preset: 1080×1080)
+    - Format Conversion (1 preset: Just Convert Format)
+    - Advanced (1 preset: Custom Settings)
+  - All presets changed from explicit JPEG/WebP to `format: 'auto'`
+  - Updated preset descriptions to reflect format preservation
+
+- **Custom Settings Panel Improvements** (`src/ui/src/components/SettingsPanel.tsx`)
+  - Resize mode default changed from `'width'` to `'none'` (no default selection)
+  - Output format default changed from `'jpg'` to `'auto'` (preserve format)
+  - Crop enable checkbox moved next to "Crop" label (not far right)
+  - Improved field labels for clarity:
+    - "Resize Mode" with clear option names
+    - "Output Format" with format characteristics
+    - "Quality" with contextual notes
+  - Added embedded mode support via `embedded` prop
+
+- **README.md Documentation**
+  - Complete rewrite of "Using the Application" section
+  - Documented preset-first workflow (select preset → upload → process)
+  - Added 2-column layout description
+  - Updated Built-in Presets section with categorized list
+  - Expanded Format Conversion section with Auto mode explanation
+  - Added crop by pixels/percentage documentation
+  - Included use cases for each format option
+
+#### Fixed
+
+- **Crop Input "0" Sticking Issue** ([#517ac7a](https://github.com/yatingodse19/PixelSmith/commit/517ac7a))
+  - Input fields no longer show "0" when empty
+  - Changed controlled input to show empty string when value is 0
+  - Makes it easier to type new crop values
+  - Applied to all 4 crop inputs (top, bottom, left, right)
+
+- **Crop Percentage Calculation** ([#19c0737](https://github.com/yatingodse19/PixelSmith/commit/19c0737))
+  - Fixed incorrect hardcoded multiplier (was 10x regardless of image size)
+  - Now calculates percentage based on actual image dimensions
+  - Example: 50% from top on 1000px image = 500px (not 500px always)
+  - Moved calculation from PresetSelector to WASM processor for accuracy
+  - Added console logging for debugging: `[WASM] Converting 10% to 100px (dimension: 1000px)`
+
+#### Technical Details
+
+**Format Preservation Flow:**
+```typescript
+// Before (explicit format conversion)
+{ op: 'convert', format: 'jpg', quality: 85 }
+
+// After (format preservation)
+{ op: 'convert', format: 'auto', quality: 85 }
+
+// At processing time
+if (format === 'auto') {
+  format = detectFormatFromFile(file.name); // 'jpg' | 'png' | 'webp'
+}
+```
+
+**Crop Percentage Calculation:**
+```typescript
+// Before (WRONG - hardcoded multiplier)
+const pixels = value * 10; // 10% always = 100px
+
+// After (CORRECT - uses actual dimension)
+const pixels = Math.round((value / 100) * dimension);
+// 10% of 1000px = 100px
+// 10% of 500px = 50px
+```
+
+**UI Layout Structure:**
+```
+┌─────────────────────────────────────┐
+│           Header                     │
+├──────────────────┬──────────────────┤
+│  Left Column     │  Right Column     │
+│  - Presets       │  - Upload         │
+│  - Crop (opt)    │  - Process        │
+│                  │  - Results        │
+├──────────────────┴──────────────────┤
+│  Privacy | Tips | Features          │
+│  (3 info boxes side-by-side)        │
+└─────────────────────────────────────┘
+```
+
+#### Migration Notes
+
+**For End Users:**
+- No breaking changes - existing workflow still works
+- New preset-first approach is simpler but old settings still accessible
+- Format is now preserved by default (PNG stays PNG)
+- Crop by percentage available for easier edge removal
+
+**For Developers:**
+- `format: 'auto'` is now the default in all presets
+- Crop operations now include optional `mode: 'pixels' | 'percent'`
+- SettingsPanel accepts `embedded?: boolean` prop for layout flexibility
+- README updated with latest workflow and features
+
+---
+
 ## [2.0.0] - 2025-11-19
 
 ### 🚀 Major: WebAssembly Client-Side Processing
