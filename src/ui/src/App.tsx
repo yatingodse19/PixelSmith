@@ -2,10 +2,10 @@ import React, { useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { FileDropzone } from './components/FileDropzone';
-import { SettingsPanel } from './components/SettingsPanel';
 import { PresetSelector } from './components/PresetSelector';
 import { ResultsDisplay } from './components/ResultsDisplay';
 import { LoadingOverlay } from './components/LoadingOverlay';
+import { QuickGuide } from './components/QuickGuide';
 import type { Pipeline, ProcessingResult } from './types';
 import { processImageWASM, processBatchWASM, type ProcessingOptions } from './utils/wasmImageProcessor';
 
@@ -14,9 +14,10 @@ function App() {
   const [pipeline, setPipeline] = useState<Pipeline>({
     pipeline: [
       { op: 'resize', mode: 'width', width: 1024, noUpscale: true },
-      { op: 'convert', format: 'jpg', quality: 85 },
+      { op: 'convert', format: 'webp', quality: 85, stripMetadata: true },
     ],
   });
+  const [selectedPresetName, setSelectedPresetName] = useState<string>(''); // Empty by default
   const [processing, setProcessing] = useState(false);
   const [processingProgress, setProcessingProgress] = useState<{ current: number; total: number } | undefined>();
   const [results, setResults] = useState<ProcessingResult[]>([]);
@@ -49,6 +50,8 @@ function App() {
         if (op.edge === 'bottom') options.crop.bottom = op.value;
         if (op.edge === 'left') options.crop.left = op.value;
         if (op.edge === 'right') options.crop.right = op.value;
+        // Set crop mode (pixels or percent) - default to pixels if not specified
+        if (op.mode) options.crop.mode = op.mode as 'pixels' | 'percent';
       } else if (op.op === 'convert') {
         options.format = op.format as 'jpg' | 'png' | 'webp' | 'avif';
         options.quality = op.quality;
@@ -132,12 +135,13 @@ function App() {
     });
   };
 
-  const handlePresetSelected = (newPipeline: Pipeline) => {
+  const handlePipelineChange = (newPipeline: Pipeline) => {
     setPipeline(newPipeline);
-    toast.success(`Preset "${newPipeline.name}" loaded`, {
-      position: 'bottom-right',
-      autoClose: 2000,
-    });
+  };
+
+  const handlePresetNameChange = (name: string) => {
+    setSelectedPresetName(name);
+    // Don't show toast on preset change - only on processing success/error
   };
 
   return (
@@ -183,19 +187,26 @@ function App() {
       </header>
 
       {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Settings, Upload, and Process */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Step 1: Configure Settings */}
-            <SettingsPanel pipeline={pipeline} onChange={setPipeline} />
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* 2-Column Layout: Configuration | Upload & Process */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Left Column: Configuration Options */}
+          <div className="space-y-6">
+            <PresetSelector
+              onPipelineChange={handlePipelineChange}
+              onPresetNameChange={handlePresetNameChange}
+            />
+          </div>
 
-            {/* Step 2: Select Images */}
+          {/* Right Column: Upload, Process & Results */}
+          <div className="space-y-6">
+            {/* File Upload Section */}
             <div className="bg-white rounded-xl shadow-lg p-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                2. Select Images
+              <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <span>📁</span> Upload Images
               </h2>
               <FileDropzone onFilesSelected={handleFilesSelected} />
+
               {selectedFiles.length > 0 && (
                 <div className="mt-4">
                   <p className="text-sm font-medium text-gray-700 mb-2">
@@ -212,53 +223,49 @@ function App() {
                       </li>
                     ))}
                   </ul>
+
+                  {/* Process Button - Inline with selected files */}
+                  <button
+                    onClick={handleProcess}
+                    disabled={processing || selectedFiles.length === 0}
+                    className={`
+                      w-full mt-4 py-3 rounded-lg font-semibold text-base transition-all duration-200
+                      ${processing || selectedFiles.length === 0
+                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        : 'bg-primary-600 hover:bg-primary-700 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
+                      }
+                    `}
+                  >
+                    {processing ? (
+                      <span className="flex items-center justify-center gap-2">
+                        <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                          <circle
+                            className="opacity-25"
+                            cx="12"
+                            cy="12"
+                            r="10"
+                            stroke="currentColor"
+                            strokeWidth="4"
+                            fill="none"
+                          />
+                          <path
+                            className="opacity-75"
+                            fill="currentColor"
+                            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                          />
+                        </svg>
+                        Processing...
+                      </span>
+                    ) : (
+                      `🚀 Process ${selectedFiles.length} Image${selectedFiles.length !== 1 ? 's' : ''}`
+                    )}
+                  </button>
                 </div>
               )}
-            </div>
 
-            {/* Step 3: Process Button */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4">
-                3. Process Images
-              </h2>
-              <button
-                onClick={handleProcess}
-                disabled={processing || selectedFiles.length === 0}
-                className={`
-                  w-full py-4 rounded-lg font-semibold text-lg transition-all duration-200
-                  ${processing || selectedFiles.length === 0
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-primary-600 hover:bg-primary-700 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
-                  }
-                `}
-              >
-                {processing ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                        fill="none"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
-                    Processing...
-                  </span>
-                ) : (
-                  `Process ${selectedFiles.length} Image${selectedFiles.length !== 1 ? 's' : ''}`
-                )}
-              </button>
               {selectedFiles.length === 0 && (
-                <p className="text-sm text-gray-500 text-center mt-2">
-                  Select images to begin
+                <p className="text-sm text-gray-500 text-center mt-4 py-3 bg-gray-50 rounded-lg">
+                  Drop images above or click to select files
                 </p>
               )}
             </div>
@@ -268,97 +275,11 @@ function App() {
               <ResultsDisplay results={results} onClear={handleClearResults} />
             )}
           </div>
+        </div>
 
-          {/* Right Column - Presets & Info */}
-          <div className="space-y-6">
-            {/* Quick Presets */}
-            <PresetSelector onPresetSelected={handlePresetSelected} />
-
-            {/* Privacy Notice */}
-            <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4">
-              <div className="flex items-start gap-3">
-                <svg
-                  className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
-                  />
-                </svg>
-                <div>
-                  <p className="font-semibold text-green-900 text-sm">
-                    Privacy Protected ⚡ WebAssembly
-                  </p>
-                  <p className="text-green-700 text-xs mt-1">
-                    Lightning-fast processing directly in your browser. Your images never leave your device.
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Quick Tips */}
-            <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
-              <h3 className="font-semibold text-blue-900 text-sm mb-3 flex items-center gap-2">
-                <span>💡</span> Quick Tips
-              </h3>
-              <ul className="space-y-2 text-xs text-blue-800">
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-600 mt-0.5">•</span>
-                  <span>Use <strong>Presets</strong> for common tasks like thumbnails or web optimization</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-600 mt-0.5">•</span>
-                  <span><strong>WebP format</strong> typically gives 25-35% smaller files than JPEG</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-600 mt-0.5">•</span>
-                  <span>Quality <strong>85</strong> is a good balance between size and quality</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-blue-600 mt-0.5">•</span>
-                  <span>Batch process multiple images at once for faster workflow</span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Features Overview */}
-            <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-4">
-              <h3 className="font-semibold text-purple-900 text-sm mb-3 flex items-center gap-2">
-                <span>✨</span> Features
-              </h3>
-              <ul className="space-y-2 text-xs text-purple-800">
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">✓</span>
-                  <span>Resize with multiple modes (width, height, contain)</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">✓</span>
-                  <span>Crop from any edge (top, bottom, left, right)</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">✓</span>
-                  <span>Convert to JPEG, PNG, or WebP with quality control</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">✓</span>
-                  <span>Automatic EXIF metadata removal for privacy</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">✓</span>
-                  <span>Progressive JPEG for better loading experience</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-purple-600">✓</span>
-                  <span>Batch processing with real-time progress</span>
-                </li>
-              </ul>
-            </div>
-          </div>
+        {/* Bottom: Info Boxes in 3 Columns */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <QuickGuide selectedPreset={selectedPresetName} />
         </div>
       </main>
 

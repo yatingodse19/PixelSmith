@@ -79,8 +79,9 @@ export interface ProcessingOptions {
     bottom?: number;
     left?: number;
     right?: number;
+    mode?: 'pixels' | 'percent'; // Crop mode: pixels or percentage
   };
-  format?: 'jpg' | 'png' | 'webp' | 'avif';
+  format?: 'jpg' | 'png' | 'webp' | 'avif' | 'auto'; // 'auto' preserves original format
   quality?: number;
   progressive?: boolean; // Progressive JPEG encoding
   stripMetadata?: boolean; // Strip EXIF metadata (always happens by default)
@@ -108,15 +109,30 @@ async function loadImage(file: File): Promise<PhotonImage> {
  */
 function applyCrop(
   img: PhotonImage,
-  cropOptions: { top?: number; bottom?: number; left?: number; right?: number }
+  cropOptions: { top?: number; bottom?: number; left?: number; right?: number; mode?: 'pixels' | 'percent' }
 ): PhotonImage {
   let currentImg = img;
   let width = currentImg.get_width();
   let height = currentImg.get_height();
+  const isPercent = cropOptions.mode === 'percent';
+
+  console.log(`[WASM] Applying crop (mode: ${cropOptions.mode || 'pixels'}) to ${width}x${height} image`);
+
+  // Convert percentage to pixels based on actual image dimensions
+  const getPixelValue = (value: number, dimension: number): number => {
+    if (isPercent) {
+      const pixels = Math.round((value / 100) * dimension);
+      console.log(`[WASM] Converting ${value}% to ${pixels}px (dimension: ${dimension}px)`);
+      return pixels;
+    }
+    return value;
+  };
 
   // Apply crops sequentially
   if (cropOptions.top && cropOptions.top > 0) {
-    const cropTop = Math.min(cropOptions.top, height - 1);
+    const cropTopPx = getPixelValue(cropOptions.top, height);
+    const cropTop = Math.min(cropTopPx, height - 1);
+    console.log(`[WASM] Cropping ${cropTop}px from top`);
     currentImg = crop(currentImg, 0, cropTop, width, height);
     height = currentImg.get_height();
   }
@@ -124,7 +140,9 @@ function applyCrop(
   if (cropOptions.bottom && cropOptions.bottom > 0) {
     width = currentImg.get_width();
     height = currentImg.get_height();
-    const newHeight = Math.max(1, height - cropOptions.bottom);
+    const cropBottomPx = getPixelValue(cropOptions.bottom, height);
+    const newHeight = Math.max(1, height - cropBottomPx);
+    console.log(`[WASM] Cropping ${cropBottomPx}px from bottom (new height: ${newHeight}px)`);
     currentImg = crop(currentImg, 0, 0, width, newHeight);
     height = currentImg.get_height();
   }
@@ -132,7 +150,9 @@ function applyCrop(
   if (cropOptions.left && cropOptions.left > 0) {
     width = currentImg.get_width();
     height = currentImg.get_height();
-    const cropLeft = Math.min(cropOptions.left, width - 1);
+    const cropLeftPx = getPixelValue(cropOptions.left, width);
+    const cropLeft = Math.min(cropLeftPx, width - 1);
+    console.log(`[WASM] Cropping ${cropLeft}px from left`);
     currentImg = crop(currentImg, cropLeft, 0, width, height);
     width = currentImg.get_width();
   }
@@ -140,7 +160,9 @@ function applyCrop(
   if (cropOptions.right && cropOptions.right > 0) {
     width = currentImg.get_width();
     height = currentImg.get_height();
-    const newWidth = Math.max(1, width - cropOptions.right);
+    const cropRightPx = getPixelValue(cropOptions.right, width);
+    const newWidth = Math.max(1, width - cropRightPx);
+    console.log(`[WASM] Cropping ${cropRightPx}px from right (new width: ${newWidth}px)`);
     currentImg = crop(currentImg, 0, 0, newWidth, height);
   }
 
@@ -272,6 +294,18 @@ async function getImageBytes(
 }
 
 /**
+ * Detect format from file name
+ */
+function detectFormatFromFile(filename: string): 'jpg' | 'png' | 'webp' | 'avif' {
+  const ext = filename.toLowerCase().split('.').pop() || 'jpg';
+  if (ext === 'jpg' || ext === 'jpeg') return 'jpg';
+  if (ext === 'png') return 'png';
+  if (ext === 'webp') return 'webp';
+  if (ext === 'avif') return 'avif';
+  return 'jpg'; // Default fallback
+}
+
+/**
  * Get file extension for output format
  */
 function getFileExtension(format: string): string {
@@ -321,8 +355,12 @@ export async function processImageWASM(
       console.log(`[WASM] Resized to: ${img.get_width()}x${img.get_height()}`);
     }
 
-    // Convert to output format
-    const format = options.format || 'png';
+    // Convert to output format (auto-detect if format is 'auto' or not specified)
+    let format = options.format || 'auto';
+    if (format === 'auto') {
+      format = detectFormatFromFile(file.name);
+      console.log(`[WASM] Auto-detected format: ${format} from ${file.name}`);
+    }
     const quality = options.quality || 80;
     const progressive = options.progressive || false;
     const outputBytes = await getImageBytes(img, format, quality, progressive);

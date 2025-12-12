@@ -7,101 +7,207 @@ import type { Pipeline } from './types';
 
 export interface PresetDefinition {
   name: string;
+  shortName?: string; // Shorter name for dropdown display
   description: string;
-  pipeline: Pipeline;
+  actions?: string[]; // What will happen - shown in preview
+  special?: 'convert-only' | 'custom'; // Special handling flags
+  pipeline?: Pipeline; // Optional for special presets
 }
 
-export const BUILT_IN_PRESETS: PresetDefinition[] = [
+export interface PresetCategory {
+  category: string;
+  presets: PresetDefinition[];
+}
+
+// Categorized presets for the new UI
+export const PRESET_CATEGORIES: PresetCategory[] = [
   {
-    name: 'Web Large (JPEG 1024px)',
-    description: 'Resize to 1024px width, JPEG quality 85 - Great for web images',
-    pipeline: {
-      pipeline: [
-        { op: 'resize', mode: 'width', width: 1024, noUpscale: true },
-        { op: 'convert', format: 'jpg', quality: 85 },
-      ],
-    },
+    category: 'Web Optimization',
+    presets: [
+      {
+        name: 'Optimize for Web (800px)',
+        shortName: '800px Quality 80',
+        description: 'Smaller size, great for mobile',
+        actions: [
+          'Resize to 800px width',
+          'Keep original format (PNG/JPEG/WebP)',
+          'Compress with 80% quality',
+          'Remove metadata for privacy'
+        ],
+        pipeline: {
+          pipeline: [
+            { op: 'resize', mode: 'width', width: 800, noUpscale: true },
+            { op: 'convert', format: 'auto', quality: 80, stripMetadata: true },
+          ],
+        },
+      },
+      {
+        name: 'Optimize for Web (1024px)',
+        shortName: '1024px Quality 85',
+        description: 'Perfect for websites and blogs',
+        actions: [
+          'Resize to 1024px width',
+          'Keep original format (PNG/JPEG/WebP)',
+          'Compress with 85% quality',
+          'Remove metadata for privacy'
+        ],
+        pipeline: {
+          pipeline: [
+            { op: 'resize', mode: 'width', width: 1024, noUpscale: true },
+            { op: 'convert', format: 'auto', quality: 85, stripMetadata: true },
+          ],
+        },
+      },
+      {
+        name: 'Optimize for Web (1920px)',
+        shortName: '1920px Quality 90',
+        description: 'Large screens with excellent quality',
+        actions: [
+          'Resize to 1920px width',
+          'Keep original format (PNG/JPEG/WebP)',
+          'Compress with 90% quality',
+          'Remove metadata for privacy'
+        ],
+        pipeline: {
+          pipeline: [
+            { op: 'resize', mode: 'width', width: 1920, noUpscale: true },
+            { op: 'convert', format: 'auto', quality: 90, stripMetadata: true },
+          ],
+        },
+      },
+    ],
   },
   {
-    name: 'Web Medium (WebP 800px)',
-    description: 'Resize to 800px width, WebP quality 80 - Smaller files, great quality',
-    pipeline: {
-      pipeline: [
-        { op: 'resize', mode: 'width', width: 800, noUpscale: true },
-        { op: 'convert', format: 'webp', quality: 80 },
-      ],
-    },
+    category: 'Thumbnails & Email',
+    presets: [
+      {
+        name: 'Create Thumbnail (300px)',
+        shortName: '300px Thumbnail Quality 75',
+        description: 'Small preview images',
+        actions: [
+          'Resize to 300px width',
+          'Keep original format (PNG/JPEG/WebP)',
+          'Compress with 75% quality',
+          'Remove metadata for privacy'
+        ],
+        pipeline: {
+          pipeline: [
+            { op: 'resize', mode: 'width', width: 300, noUpscale: true },
+            { op: 'convert', format: 'auto', quality: 75, stripMetadata: true },
+          ],
+        },
+      },
+      {
+        name: 'Optimize for Email (600px)',
+        shortName: '600px Email Quality 70',
+        description: 'Small file size for email attachments',
+        actions: [
+          'Resize to 600px width',
+          'Keep original format (PNG/JPEG/WebP)',
+          'Compress with 70% quality',
+          'Remove metadata for privacy'
+        ],
+        pipeline: {
+          pipeline: [
+            { op: 'resize', mode: 'width', width: 600, noUpscale: true },
+            { op: 'convert', format: 'auto', quality: 70, stripMetadata: true },
+          ],
+        },
+      },
+    ],
   },
   {
-    name: 'Social Media Square (1080x1080)',
-    description: 'Contain to 1080×1080 square, JPEG quality 85 - Instagram/Facebook',
-    pipeline: {
-      pipeline: [
-        { op: 'resize', mode: 'contain', width: 1080, height: 1080, noUpscale: true },
-        { op: 'convert', format: 'jpg', quality: 85 },
-      ],
-    },
+    category: 'Social Media',
+    presets: [
+      {
+        name: 'Social Media Square (1080x1080)',
+        shortName: '1080x1080 Square Quality 85',
+        description: 'Perfect for Instagram and Facebook',
+        actions: [
+          'Fit to 1080×1080 square',
+          'Keep original format (PNG/JPEG/WebP)',
+          'Compress with 85% quality',
+          'Remove metadata for privacy'
+        ],
+        pipeline: {
+          pipeline: [
+            { op: 'resize', mode: 'contain', width: 1080, height: 1080, noUpscale: true },
+            { op: 'convert', format: 'auto', quality: 85, stripMetadata: true },
+          ],
+        },
+      },
+    ],
   },
   {
-    name: 'Thumbnail (300px)',
-    description: 'Resize to 300px width, JPEG quality 75 - Fast loading thumbnails',
-    pipeline: {
-      pipeline: [
-        { op: 'resize', mode: 'width', width: 300, noUpscale: true },
-        { op: 'convert', format: 'jpg', quality: 75 },
-      ],
-    },
+    category: 'Format Conversion',
+    presets: [
+      {
+        name: 'Just Convert Format',
+        shortName: 'Convert Format Only',
+        description: 'Change format without resizing',
+        actions: [
+          'Keep original dimensions',
+          'Convert to selected format',
+          'Remove metadata for privacy'
+        ],
+        special: 'convert-only',
+        // No fixed pipeline - user selects format dynamically
+      },
+    ],
   },
   {
-    name: 'High Quality WebP (1920px)',
-    description: 'Resize to 1920px width, WebP quality 90 - Large screens, great compression',
-    pipeline: {
-      pipeline: [
-        { op: 'resize', mode: 'width', width: 1920, noUpscale: true },
-        { op: 'convert', format: 'webp', quality: 90 },
-      ],
-    },
-  },
-  {
-    name: 'Email Friendly (600px)',
-    description: 'Resize to 600px width, JPEG quality 70 - Small file size for emails',
-    pipeline: {
-      pipeline: [
-        { op: 'resize', mode: 'width', width: 600, noUpscale: true },
-        { op: 'convert', format: 'jpg', quality: 70 },
-      ],
-    },
-  },
-  {
-    name: 'PNG to WebP',
-    description: 'Convert PNG to WebP with quality 85 - Reduce file size significantly',
-    pipeline: {
-      pipeline: [
-        { op: 'convert', format: 'webp', quality: 85 },
-      ],
-    },
-  },
-  {
-    name: 'Compress JPEG',
-    description: 'Re-compress JPEG to quality 75 - Reduce file size',
-    pipeline: {
-      pipeline: [
-        { op: 'convert', format: 'jpg', quality: 75 },
-      ],
-    },
+    category: 'Advanced',
+    presets: [
+      {
+        name: 'Custom Settings',
+        shortName: 'Full Control (Advanced)',
+        description: 'Configure all options manually',
+        actions: [
+          'Full control over all settings',
+          'Resize, crop, format, quality, metadata'
+        ],
+        special: 'custom',
+        // No pipeline - shows SettingsPanel
+      },
+    ],
   },
 ];
 
+// Legacy flat list for backwards compatibility (CLI, old code)
+export const BUILT_IN_PRESETS: PresetDefinition[] = PRESET_CATEGORIES.flatMap(
+  category => category.presets
+).filter(preset => preset.pipeline); // Exclude special presets without fixed pipelines
+
 /**
- * Get preset by name
+ * Get preset by name (searches across all categories)
  */
 export function getPreset(name: string): PresetDefinition | undefined {
-  return BUILT_IN_PRESETS.find(p => p.name === name);
+  for (const category of PRESET_CATEGORIES) {
+    const preset = category.presets.find(p => p.name === name);
+    if (preset) return preset;
+  }
+  return undefined;
+}
+
+/**
+ * Get preset by name (legacy function for backwards compatibility)
+ */
+export function getPresetByName(name: string): PresetDefinition | undefined {
+  return getPreset(name);
 }
 
 /**
  * Get all preset names
  */
 export function getPresetNames(): string[] {
-  return BUILT_IN_PRESETS.map(p => p.name);
+  return PRESET_CATEGORIES.flatMap(category =>
+    category.presets.map(p => p.name)
+  );
+}
+
+/**
+ * Get all categories
+ */
+export function getCategories(): PresetCategory[] {
+  return PRESET_CATEGORIES;
 }
