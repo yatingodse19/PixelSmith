@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!-- Background circle -->
+  <circle cx="32" cy="32" r="30" fill="#6366f1"/>
+
+  <!-- Pixel grid pattern -->
+  <g opacity="0.3">
+    <rect x="16" y="16" width="8" height="8" fill="#ffffff"/>
+    <rect x="24" y="24" width="8" height="8" fill="#ffffff"/>
+    <rect x="32" y="16" width="8" height="8" fill="#ffffff"/>
+    <rect x="40" y="24" width="8" height="8" fill="#ffffff"/>
+  </g>
+
+  <!-- Image/photo icon -->
+  <rect x="20" y="24" width="24" height="18" rx="2" fill="#ffffff"/>
+  <circle cx="26" cy="30" r="2" fill="#6366f1"/>
+  <path d="M 20 39 L 26 33 L 32 38 L 38 32 L 44 38 V 40 C 44 41.1 43.1 42 42 42 H 22 C 20.9 42 20 41.1 20 40 V 39 Z" fill="#6366f1"/>
+
+  <!-- Small pixel accent -->
+  <rect x="42" y="18" width="4" height="4" fill="#fbbf24" rx="0.5"/>
+  <rect x="46" y="22" width="4" height="4" fill="#10b981" rx="0.5"/>
+</svg>
