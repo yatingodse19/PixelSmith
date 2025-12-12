@@ -55,20 +55,11 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 
     // Add crop operations first (if enabled)
     if (cropEnabled) {
-      // Convert percentage to pixels if needed (assume base 1000px for percentage calculations)
-      const getPixelValue = (value: number) => {
-        if (cropMode === 'percent') {
-          // Convert percentage to pixels (10% = 100px at 1000px base)
-          // This is approximate - actual conversion happens during processing based on real image dimensions
-          return Math.round(value * 10); // 10% -> 100px
-        }
-        return value;
-      };
-
-      if (cropTop > 0) operations.push({ op: 'crop', edge: 'top', value: getPixelValue(cropTop) });
-      if (cropBottom > 0) operations.push({ op: 'crop', edge: 'bottom', value: getPixelValue(cropBottom) });
-      if (cropLeft > 0) operations.push({ op: 'crop', edge: 'left', value: getPixelValue(cropLeft) });
-      if (cropRight > 0) operations.push({ op: 'crop', edge: 'right', value: getPixelValue(cropRight) });
+      // Pass crop values and mode - actual pixel conversion happens in WASM processor with real image dimensions
+      if (cropTop > 0) operations.push({ op: 'crop', edge: 'top', value: cropTop, mode: cropMode });
+      if (cropBottom > 0) operations.push({ op: 'crop', edge: 'bottom', value: cropBottom, mode: cropMode });
+      if (cropLeft > 0) operations.push({ op: 'crop', edge: 'left', value: cropLeft, mode: cropMode });
+      if (cropRight > 0) operations.push({ op: 'crop', edge: 'right', value: cropRight, mode: cropMode });
     }
 
     // Add preset-specific operations

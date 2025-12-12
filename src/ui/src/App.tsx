@@ -50,6 +50,8 @@ function App() {
         if (op.edge === 'bottom') options.crop.bottom = op.value;
         if (op.edge === 'left') options.crop.left = op.value;
         if (op.edge === 'right') options.crop.right = op.value;
+        // Set crop mode (pixels or percent) - default to pixels if not specified
+        if (op.mode) options.crop.mode = op.mode as 'pixels' | 'percent';
       } else if (op.op === 'convert') {
         options.format = op.format as 'jpg' | 'png' | 'webp' | 'avif';
         options.quality = op.quality;
