@@ -81,7 +81,7 @@ export interface ProcessingOptions {
     right?: number;
     mode?: 'pixels' | 'percent'; // Crop mode: pixels or percentage
   };
-  format?: 'jpg' | 'png' | 'webp' | 'avif';
+  format?: 'jpg' | 'png' | 'webp' | 'avif' | 'auto'; // 'auto' preserves original format
   quality?: number;
   progressive?: boolean; // Progressive JPEG encoding
   stripMetadata?: boolean; // Strip EXIF metadata (always happens by default)
@@ -294,6 +294,18 @@ async function getImageBytes(
 }
 
 /**
+ * Detect format from file name
+ */
+function detectFormatFromFile(filename: string): 'jpg' | 'png' | 'webp' | 'avif' {
+  const ext = filename.toLowerCase().split('.').pop() || 'jpg';
+  if (ext === 'jpg' || ext === 'jpeg') return 'jpg';
+  if (ext === 'png') return 'png';
+  if (ext === 'webp') return 'webp';
+  if (ext === 'avif') return 'avif';
+  return 'jpg'; // Default fallback
+}
+
+/**
  * Get file extension for output format
  */
 function getFileExtension(format: string): string {
@@ -343,8 +355,12 @@ export async function processImageWASM(
       console.log(`[WASM] Resized to: ${img.get_width()}x${img.get_height()}`);
     }
 
-    // Convert to output format
-    const format = options.format || 'png';
+    // Convert to output format (auto-detect if format is 'auto' or not specified)
+    let format = options.format || 'auto';
+    if (format === 'auto') {
+      format = detectFormatFromFile(file.name);
+      console.log(`[WASM] Auto-detected format: ${format} from ${file.name}`);
+    }
     const quality = options.quality || 80;
     const progressive = options.progressive || false;
     const outputBytes = await getImageBytes(img, format, quality, progressive);

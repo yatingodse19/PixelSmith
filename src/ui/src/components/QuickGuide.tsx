@@ -9,7 +9,7 @@ export const QuickGuide: React.FC<QuickGuideProps> = ({ selectedPreset }) => {
   const getContextualTips = (): string[] => {
     if (selectedPreset.includes('Web')) {
       return [
-        'JPEG is widely supported across all browsers',
+        'Original format is preserved (PNG/JPEG/WebP)',
         'Quality 85 is perfect for web - good balance',
         'Enable crop to remove unwanted edges',
         '1024px width works great for most websites'
@@ -25,14 +25,14 @@ export const QuickGuide: React.FC<QuickGuideProps> = ({ selectedPreset }) => {
       return [
         'Thumbnails load faster with lower quality',
         '300px is perfect for preview images',
-        'JPEG at quality 75 is great for thumbnails',
+        'Original format preserved, just resized',
         'Batch process multiple images at once'
       ];
     } else if (selectedPreset.includes('Email')) {
       return [
         '600px width keeps email attachments small',
         'Quality 70 reduces file size significantly',
-        'Most email clients support JPEG best',
+        'Format preserved - PNG stays PNG, JPEG stays JPEG',
         'Keep files under 1MB for email compatibility'
       ];
     } else if (selectedPreset.includes('Social')) {
@@ -54,7 +54,7 @@ export const QuickGuide: React.FC<QuickGuideProps> = ({ selectedPreset }) => {
     // Default tips
     return [
       'Use presets for common tasks',
-      'JPEG format is universally supported',
+      'Original format is always preserved',
       'Quality 85 is a good balance',
       'Batch process multiple images at once'
     ];
@@ -120,7 +120,7 @@ export const QuickGuide: React.FC<QuickGuideProps> = ({ selectedPreset }) => {
           </li>
           <li className="flex items-start gap-2">
             <span className="text-purple-600">✓</span>
-            <span>Convert to JPEG, PNG, or WebP with quality control</span>
+            <span>Preserves original format or convert to JPEG/PNG/WebP</span>
           </li>
           <li className="flex items-start gap-2">
             <span className="text-purple-600">✓</span>
