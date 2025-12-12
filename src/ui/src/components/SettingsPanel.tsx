@@ -4,9 +4,10 @@ import type { Pipeline } from '../types';
 interface SettingsPanelProps {
   pipeline: Pipeline;
   onChange: (pipeline: Pipeline) => void;
+  embedded?: boolean; // NEW: Whether panel is embedded in another component
 }
 
-export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange }) => {
+export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange, embedded = false }) => {
   const [resizeMode, setResizeMode] = React.useState<string>('width');
   const [resizeWidth, setResizeWidth] = React.useState<number>(1024);
   const [resizeHeight, setResizeHeight] = React.useState<number>(768);
@@ -80,8 +81,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
   }, [resizeMode, resizeWidth, resizeHeight, outputFormat, quality, enableCrop, cropTop, cropBottom, cropLeft, cropRight, noUpscale, progressive, stripMetadata]);
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800">1. Configure Settings</h2>
+    <div className={embedded ? 'space-y-6' : 'bg-white rounded-xl shadow-lg p-6 space-y-6'}>
+      {!embedded && <h2 className="text-2xl font-bold text-gray-800">1. Configure Settings</h2>}
 
       {/* Resize Settings */}
       <div className="space-y-4">
