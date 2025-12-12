@@ -24,11 +24,12 @@ PixelSmith is a powerful, client-side image processing tool that runs entirely i
 ## ✨ Features
 
 ### 🎨 Core Capabilities
-- **Beautiful Web Interface** - Drag-and-drop UI with real-time processing
+- **Beautiful Web Interface** - Preset-first design with responsive 2-column layout, drag-and-drop file upload
 - **WebAssembly Powered** - Near-native performance using Rust/WASM
 - **100% Privacy** - Images never leave your device, EXIF automatically stripped
 - **Batch Processing** - Process multiple images with progress tracking
-- **Built-in Presets** - 8 ready-to-use workflows for common tasks
+- **Built-in Presets** - 8 ready-to-use workflows for common tasks (web optimization, social media, thumbnails, etc.)
+- **Format Preservation** - Original format preserved by default (PNG stays PNG, JPEG stays JPEG)
 - **Works Offline** - No internet required after initial load
 - **No Backend Needed** - Pure client-side, deploy to any static host
 
@@ -39,8 +40,10 @@ PixelSmith is a powerful, client-side image processing tool that runs entirely i
   - Option: Prevent upscaling
 - **Crop**
   - Edges: Top, Bottom, Left, Right
+  - Modes: Pixels or Percentage (calculated based on actual image dimensions)
   - Multi-edge cropping support
 - **Format Conversion**
+  - **Auto (Default)** - Preserves original format (PNG stays PNG, JPEG stays JPEG, WebP stays WebP)
   - **JPEG** - Quality control (1-100) + **Progressive JPEG** support
   - **WebP** - Lossy compression with quality control (typically 25-35% smaller than JPEG)
   - **PNG** - Lossless compression
@@ -52,14 +55,25 @@ PixelSmith is a powerful, client-side image processing tool that runs entirely i
 - **Transparent UI** - Shows exactly what's happening to your images
 
 ### 🎯 Built-in Presets
-1. **Web Large (JPEG 1024px)** - Resize to 1024px, JPEG 85
-2. **Web Medium (WebP 800px)** - Resize to 800px, WebP 80 (smaller files)
-3. **Social Media Square (1080x1080)** - Perfect for Instagram/Facebook
-4. **Thumbnail (300px)** - Fast-loading thumbnails
-5. **High Quality WebP (1920px)** - Large screens with great compression
-6. **Email Friendly (600px)** - Small file size for emails
-7. **PNG to WebP** - Convert and compress
-8. **Compress JPEG** - Re-compress to reduce file size
+All presets preserve original format by default (PNG stays PNG, JPEG stays JPEG):
+
+**Web Optimization**
+1. **Optimize for Web (800px)** - Resize to 800px, Quality 80, format preserved
+2. **Optimize for Web (1024px)** - Resize to 1024px, Quality 85, format preserved
+3. **Optimize for Web (1920px)** - Resize to 1920px, Quality 90, format preserved
+
+**Thumbnails & Email**
+4. **Create Thumbnail (300px)** - Resize to 300px, Quality 75, format preserved
+5. **Optimize for Email (600px)** - Resize to 600px, Quality 70, format preserved
+
+**Social Media**
+6. **Social Media Square (1080×1080)** - Fit to 1080×1080, Quality 85, format preserved
+
+**Format Conversion**
+7. **Just Convert Format** - Keep original dimensions, convert to selected format only
+
+**Advanced**
+8. **Custom Settings** - Full control over resize, crop, format, quality, and metadata
 
 ---
 
@@ -94,31 +108,38 @@ This will:
 
 ### Using the Application
 
-1. **Upload Images**
+**Simple Preset-First Workflow:**
+
+1. **Select a Preset** (Left Column)
+   - Choose from 8 built-in presets organized by category
+   - See live preview of actions that will be performed
+   - Optionally enable crop (pixels or percentage mode)
+   - For advanced users: Select "Custom Settings" for full control
+
+2. **Upload Images** (Right Column)
    - Drag and drop files onto the upload area
    - Or click to browse and select files
    - Supports: JPEG, PNG, WebP, GIF, BMP
+   - Upload single or multiple images for batch processing
 
-2. **Choose a Preset** (Optional)
-   - Select from 8 built-in presets for common workflows
-   - Or configure custom settings below
-
-3. **Configure Settings**
-   - **Resize**: Choose mode (width/height/contain/none) and dimensions
-   - **Crop**: Enable and set pixel values for each edge
-   - **Format**: Select output format (JPEG/WebP/PNG)
-   - **Quality**: Adjust slider (disabled for PNG, enabled for JPEG/WebP)
-   - **Progressive JPEG**: Enable for gradual loading (JPEG only)
-   - **Strip EXIF**: Always enabled for privacy
-
-4. **Process**
+3. **Process**
    - Click "Process" button
    - Watch progress bar for batch processing
-   - View results with before/after comparison
+   - View results with file size information
 
-5. **Download**
+4. **Download**
    - Download individual images
    - Or download all as ZIP file
+
+**Custom Settings (Advanced):**
+When you select "Custom Settings" preset, you get full control:
+- **Resize**: Choose mode (none/width/height/contain) and dimensions
+- **Crop**: Enable and set values for each edge (pixels or percentage)
+- **Format**: Select output format (auto/JPEG/WebP/PNG)
+  - **Auto (Default)**: Preserves original format
+- **Quality**: Adjust slider (1-100, disabled for PNG)
+- **Progressive JPEG**: Enable for gradual loading (JPEG only)
+- **Strip EXIF**: Optional privacy protection (enabled by default)
 
 ---
 
@@ -230,12 +251,24 @@ Download Results
 - **Algorithm**: Lanczos3 (industry-standard, best quality)
 
 ### Crop
-- **Edges**: Top, Bottom, Left, Right (in pixels)
+- **Modes**:
+  - **Pixels**: Crop by exact pixel values (e.g., 100px from top)
+  - **Percentage**: Crop by percentage of image dimensions (e.g., 10% from top calculated on actual image size)
+- **Edges**: Top, Bottom, Left, Right
 - **Multi-edge**: Apply multiple crops in one operation
 - **Order**: Top → Bottom → Left → Right (automatic)
 - **Validation**: Prevents invalid crops (< 1px remaining)
+- **Calculation**: Percentage values are calculated based on actual image dimensions at processing time
 
 ### Format Conversion
+
+#### Auto (Default - Format Preservation)
+- **Behavior**: Preserves original image format
+  - PNG files stay PNG (preserves transparency)
+  - JPEG files stay JPEG (preserves compression)
+  - WebP files stay WebP (preserves modern format)
+- **Quality**: Applies to lossy formats (JPEG, WebP), ignored for PNG
+- **Use case**: Best for general optimization while maintaining format characteristics
 
 #### JPEG
 - **Encoder**: MozJPEG (industry-standard, used by Google/Facebook)
@@ -243,17 +276,20 @@ Download Results
 - **Progressive**: Optional (gradual loading, slightly larger files)
 - **Compression**: ~5-10% better than standard JPEG encoder
 - **EXIF**: Automatically stripped for privacy
+- **Use case**: Convert any image to JPEG for maximum compatibility
 
 #### WebP
 - **Encoder**: Google libwebp
 - **Quality**: 1-100 (lossy compression)
 - **Typical savings**: 25-35% smaller than JPEG at same quality
 - **Browser support**: Chrome 23+, Firefox 65+, Safari 14+, Edge 18+
+- **Use case**: Best compression for modern browsers
 
 #### PNG
 - **Encoder**: Photon (lossless compression)
 - **Best for**: Graphics, text, transparency
 - **Note**: Quality slider has no effect (lossless format)
+- **Use case**: Convert images requiring transparency or lossless quality
 
 ---
 
