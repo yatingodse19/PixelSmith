@@ -180,7 +180,7 @@ function App() {
                 Fast, private image processing powered by WebAssembly
               </p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4">
               {/* Theme Toggle Button */}
               <button
                 onClick={toggleTheme}
@@ -197,9 +197,10 @@ function App() {
                   </svg>
                 )}
               </button>
-              <div className="text-right">
-                <p className="text-sm font-medium text-green-600 dark:text-green-400">All Local</p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">No internet required</p>
+              {/* Privacy badge - hidden on mobile, visible on sm+ */}
+              <div className="hidden sm:block text-right">
+                <p className="text-sm font-medium text-green-600 dark:text-green-400">100% Private</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">Offline processing</p>
               </div>
             </div>
           </div>

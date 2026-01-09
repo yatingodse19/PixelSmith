@@ -43,6 +43,7 @@
     "@jsquash/webp": "^1.5.0",
     "@silvia-odwyer/photon": "^0.3.3",
     "chalk": "^5.3.0",
+    "heic2any": "^0.0.4",
     "jszip": "^3.10.1",
     "ora": "^8.0.1",
     "p-queue": "^8.0.1",

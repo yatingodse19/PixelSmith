@@ -8,6 +8,7 @@
  * - Photon: Resize, crop, and image manipulation
  * - @jsquash/webp: Lossy WebP compression with quality control
  * - @jsquash/jpeg: MozJPEG encoder with progressive JPEG support
+ * - heic2any: HEIC/HEIF conversion for iOS mobile compatibility
  *
  * Supported operations:
  * - Resize (width, height, contain modes)
@@ -16,6 +17,7 @@
  * - Quality/compression settings
  * - Progressive JPEG encoding
  * - Automatic EXIF stripping (privacy-first)
+ * - HEIC/HEIF to JPEG conversion (for iOS mobile gallery images)
  *
  * Note: AVIF format is not supported yet, will fall back to WebP.
  */
@@ -28,6 +30,7 @@ import initPhoton, {
 } from '@silvia-odwyer/photon';
 import { encode as encodeWebP } from '@jsquash/webp';
 import { encode as encodeJPEG } from '@jsquash/jpeg';
+import heic2any from 'heic2any';
 
 // WASM initialization state
 let wasmInitialized = false;
@@ -96,12 +99,72 @@ export interface ProcessingResult {
 }
 
 /**
- * Load an image file into a PhotonImage
+ * Check if a file is HEIC/HEIF format
  */
-async function loadImage(file: File): Promise<PhotonImage> {
-  const arrayBuffer = await file.arrayBuffer();
-  const uint8Array = new Uint8Array(arrayBuffer);
-  return PhotonImage.new_from_byteslice(uint8Array);
+function isHeicFile(file: File): boolean {
+  const name = file.name.toLowerCase();
+  const type = file.type.toLowerCase();
+  return (
+    name.endsWith('.heic') ||
+    name.endsWith('.heif') ||
+    type === 'image/heic' ||
+    type === 'image/heif'
+  );
+}
+
+/**
+ * Convert HEIC file to JPEG for processing
+ * Mobile devices (especially iOS) often use HEIC format
+ */
+async function convertHeicToJpeg(file: File): Promise<File> {
+  console.log(`[WASM] Converting HEIC file: ${file.name}`);
+  try {
+    const blob = await heic2any({
+      blob: file,
+      toType: 'image/jpeg',
+      quality: 0.95,
+    });
+
+    // heic2any can return a single blob or array of blobs
+    const resultBlob = Array.isArray(blob) ? blob[0] : blob;
+
+    // Create a new File with the converted content
+    const newName = file.name.replace(/\.heic$/i, '.jpg').replace(/\.heif$/i, '.jpg');
+    const convertedFile = new File([resultBlob], newName, { type: 'image/jpeg' });
+
+    console.log(`[WASM] HEIC converted successfully: ${newName} (${(convertedFile.size / 1024).toFixed(1)} KB)`);
+    return convertedFile;
+  } catch (error) {
+    console.error('[WASM] HEIC conversion failed:', error);
+    throw new Error(`Failed to convert HEIC image: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+/**
+ * Load an image file into a PhotonImage
+ * Handles HEIC conversion for mobile compatibility
+ */
+async function loadImage(file: File): Promise<{ img: PhotonImage; convertedFile: File }> {
+  let processFile = file;
+
+  // Convert HEIC to JPEG first (common on iOS devices)
+  if (isHeicFile(file)) {
+    processFile = await convertHeicToJpeg(file);
+  }
+
+  try {
+    const arrayBuffer = await processFile.arrayBuffer();
+    const uint8Array = new Uint8Array(arrayBuffer);
+    const img = PhotonImage.new_from_byteslice(uint8Array);
+    return { img, convertedFile: processFile };
+  } catch (error) {
+    // Provide more helpful error message for unsupported formats
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    if (errorMessage.includes('unreachable') || errorMessage.includes('RuntimeError')) {
+      throw new Error(`Unsupported image format. Please use JPEG, PNG, or WebP. (${file.name})`);
+    }
+    throw error;
+  }
 }
 
 /**
@@ -339,8 +402,9 @@ export async function processImageWASM(
     console.log(`[WASM] Processing ${file.name} (${(file.size / 1024).toFixed(1)} KB)`);
     const startTime = performance.now();
 
-    // Load image
-    let img = await loadImage(file);
+    // Load image (handles HEIC conversion automatically)
+    const { img: loadedImg, convertedFile } = await loadImage(file);
+    let img = loadedImg;
     console.log(`[WASM] Loaded image: ${img.get_width()}x${img.get_height()}`);
 
     // Apply crop if specified
@@ -356,10 +420,11 @@ export async function processImageWASM(
     }
 
     // Convert to output format (auto-detect if format is 'auto' or not specified)
+    // Use convertedFile name for format detection (handles HEIC->JPEG conversion)
     let format = options.format || 'auto';
     if (format === 'auto') {
-      format = detectFormatFromFile(file.name);
-      console.log(`[WASM] Auto-detected format: ${format} from ${file.name}`);
+      format = detectFormatFromFile(convertedFile.name);
+      console.log(`[WASM] Auto-detected format: ${format} from ${convertedFile.name}`);
     }
     const quality = options.quality || 80;
     const progressive = options.progressive || false;
