@@ -26,15 +26,15 @@ export const FileDropzone: React.FC<FileDropzoneProps> = ({ onFilesSelected, mul
         border-2 border-dashed rounded-xl p-12 text-center cursor-pointer
         transition-all duration-200
         ${isDragActive
-          ? 'border-primary-500 bg-primary-50 scale-102'
-          : 'border-gray-300 hover:border-primary-400 hover:bg-gray-50'
+          ? 'border-primary-500 bg-primary-50 dark:bg-primary-900/20 scale-102'
+          : 'border-gray-400 dark:border-gray-500 hover:border-primary-400 dark:hover:border-primary-400 hover:bg-gray-50 dark:hover:bg-gray-700/50'
         }
       `}
     >
       <input {...getInputProps()} />
       <div className="flex flex-col items-center gap-4">
         <svg
-          className={`w-16 h-16 ${isDragActive ? 'text-primary-500' : 'text-gray-400'}`}
+          className={`w-16 h-16 ${isDragActive ? 'text-primary-500' : 'text-gray-400 dark:text-gray-500'}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -47,15 +47,18 @@ export const FileDropzone: React.FC<FileDropzoneProps> = ({ onFilesSelected, mul
           />
         </svg>
         {isDragActive ? (
-          <p className="text-lg font-medium text-primary-600">
+          <p className="text-lg font-medium text-primary-600 dark:text-primary-400">
             Drop your images here...
           </p>
         ) : (
           <>
-            <p className="text-lg font-medium text-gray-700">
-              Drag & drop images here, or click to select
+            <p className="text-lg font-medium text-gray-700 dark:text-gray-300">
+              Drag and Drop Images Here
             </p>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              or click to browse
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
               Supports JPG, PNG, WebP, AVIF, TIFF, HEIC
               {multiple && ' (multiple files supported)'}
             </p>

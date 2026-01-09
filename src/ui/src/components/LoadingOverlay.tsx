@@ -24,18 +24,18 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-      <div className="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all">
+      <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8 max-w-md w-full mx-4 transform transition-all">
         {/* Animated Spinner */}
         <div className="flex justify-center mb-6">
           <div className="relative">
             {/* Outer rotating ring */}
-            <div className="w-20 h-20 border-4 border-primary-200 rounded-full animate-spin border-t-primary-600"></div>
+            <div className="w-20 h-20 border-4 border-primary-200 dark:border-primary-800 rounded-full animate-spin border-t-primary-600"></div>
 
             {/* Inner pulsing circle */}
             <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
-              <div className="w-12 h-12 bg-primary-100 rounded-full animate-pulse flex items-center justify-center">
+              <div className="w-12 h-12 bg-primary-100 dark:bg-primary-900/50 rounded-full animate-pulse flex items-center justify-center">
                 <svg
-                  className="w-6 h-6 text-primary-600"
+                  className="w-6 h-6 text-primary-600 dark:text-primary-400"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -53,7 +53,7 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
         </div>
 
         {/* Message */}
-        <h3 className="text-xl font-bold text-gray-800 text-center mb-2">
+        <h3 className="text-xl font-bold text-gray-800 dark:text-white text-center mb-2">
           {message}
         </h3>
 
@@ -61,14 +61,14 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
         {!showIndeterminate && progress && progress.total > 1 && (
           <div className="space-y-3">
             <div className="text-center">
-              <p className="text-sm text-gray-600">
-                Processing <span className="font-semibold text-primary-600">{progress.current}</span> of{' '}
-                <span className="font-semibold text-primary-600">{progress.total}</span> images
+              <p className="text-sm text-gray-600 dark:text-gray-400">
+                Processing <span className="font-semibold text-primary-600 dark:text-primary-400">{progress.current}</span> of{' '}
+                <span className="font-semibold text-primary-600 dark:text-primary-400">{progress.total}</span> images
               </p>
             </div>
 
             {/* Progress Bar */}
-            <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+            <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3 overflow-hidden">
               <div
                 className="bg-gradient-to-r from-primary-500 to-primary-600 h-full rounded-full transition-all duration-300 ease-out relative overflow-hidden"
                 style={{ width: `${progressPercentage}%` }}
@@ -79,7 +79,7 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
             </div>
 
             {/* Percentage */}
-            <p className="text-center text-sm font-medium text-gray-700">
+            <p className="text-center text-sm font-medium text-gray-700 dark:text-gray-300">
               {progressPercentage}% Complete
             </p>
           </div>
@@ -88,15 +88,15 @@ export const LoadingOverlay: React.FC<LoadingOverlayProps> = ({
         {/* Indeterminate or single image - just show message */}
         {(showIndeterminate || (progress && progress.total === 1)) && (
           <div className="text-center">
-            <p className="text-sm text-gray-600">
+            <p className="text-sm text-gray-600 dark:text-gray-400">
               Please wait while we process your image...
             </p>
           </div>
         )}
 
         {/* Tip */}
-        <p className="text-xs text-gray-500 text-center mt-4">
-          ✨ All processing happens locally on your device
+        <p className="text-xs text-gray-500 dark:text-gray-400 text-center mt-4">
+          All processing happens locally on your device
         </p>
       </div>
 
