@@ -6,10 +6,12 @@ import { PresetSelector } from './components/PresetSelector';
 import { ResultsDisplay } from './components/ResultsDisplay';
 import { LoadingOverlay } from './components/LoadingOverlay';
 import { QuickGuide } from './components/QuickGuide';
+import { useTheme } from './contexts/ThemeContext';
 import type { Pipeline, ProcessingResult } from './types';
 import { processImageWASM, processBatchWASM, type ProcessingOptions } from './utils/wasmImageProcessor';
 
 function App() {
+  const { theme, toggleTheme } = useTheme();
   const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
   const [pipeline, setPipeline] = useState<Pipeline>({
     pipeline: [
@@ -84,7 +86,7 @@ function App() {
         setResults([result]);
 
         if (result.success) {
-          toast.success('✓ Image processed successfully!', {
+          toast.success('Image processed successfully!', {
             position: 'bottom-right',
             autoClose: 3000,
           });
@@ -108,7 +110,7 @@ function App() {
         const failed = results.length - successful;
 
         toast.success(
-          `✓ Processed ${successful} image(s) successfully${failed > 0 ? ` (${failed} failed)` : ''}`,
+          `Processed ${successful} image(s) successfully${failed > 0 ? ` (${failed} failed)` : ''}`,
           {
             position: 'bottom-right',
             autoClose: 5000,
@@ -145,7 +147,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-900 dark:to-gray-800 transition-colors duration-200">
       {/* Loading Overlay */}
       <LoadingOverlay
         isVisible={processing}
@@ -163,24 +165,42 @@ function App() {
         pauseOnFocusLoss
         draggable
         pauseOnHover
-        theme="light"
+        theme={theme}
       />
 
       {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
+      <header className="bg-white dark:bg-gray-800 shadow-sm border-b border-gray-200 dark:border-gray-700 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">
-                🎨 PixelSmith
+              <h1 className="text-3xl font-bold text-gray-900 dark:text-white">
+                PixelSmith
               </h1>
-              <p className="mt-1 text-sm text-gray-600">
-                Privacy-first image processing • 100% browser-based • WebAssembly powered
+              <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
+                Fast, private image processing powered by WebAssembly
               </p>
             </div>
-            <div className="text-right">
-              <p className="text-sm font-medium text-green-600">🔒 All Local</p>
-              <p className="text-xs text-gray-500">No internet required</p>
+            <div className="flex items-center gap-4">
+              {/* Theme Toggle Button */}
+              <button
+                onClick={toggleTheme}
+                className="p-2 rounded-lg bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors duration-200"
+                aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+              >
+                {theme === 'light' ? (
+                  <svg className="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                  </svg>
+                ) : (
+                  <svg className="w-5 h-5 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                  </svg>
+                )}
+              </button>
+              <div className="text-right">
+                <p className="text-sm font-medium text-green-600 dark:text-green-400">All Local</p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">No internet required</p>
+              </div>
             </div>
           </div>
         </div>
@@ -201,23 +221,23 @@ function App() {
           {/* Right Column: Upload, Process & Results */}
           <div className="space-y-6">
             {/* File Upload Section */}
-            <div className="bg-white rounded-xl shadow-lg p-6">
-              <h2 className="text-2xl font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <span>📁</span> Upload Images
+            <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 transition-colors duration-200">
+              <h2 className="text-2xl font-bold text-gray-800 dark:text-white mb-4 flex items-center gap-2">
+                <span>Upload Images</span>
               </h2>
               <FileDropzone onFilesSelected={handleFilesSelected} />
 
               {selectedFiles.length > 0 && (
                 <div className="mt-4">
-                  <p className="text-sm font-medium text-gray-700 mb-2">
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                     Selected files ({selectedFiles.length}):
                   </p>
-                  <ul className="text-sm text-gray-600 space-y-1 max-h-32 overflow-y-auto">
+                  <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-1 max-h-32 overflow-y-auto">
                     {selectedFiles.map((file, index) => (
                       <li key={index} className="flex items-center gap-2">
                         <span className="w-2 h-2 bg-primary-500 rounded-full"></span>
                         {file.name}
-                        <span className="text-gray-400">
+                        <span className="text-gray-400 dark:text-gray-500">
                           ({(file.size / 1024 / 1024).toFixed(2)} MB)
                         </span>
                       </li>
@@ -231,7 +251,7 @@ function App() {
                     className={`
                       w-full mt-4 py-3 rounded-lg font-semibold text-base transition-all duration-200
                       ${processing || selectedFiles.length === 0
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                        ? 'bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed'
                         : 'bg-primary-600 hover:bg-primary-700 text-white shadow-lg hover:shadow-xl transform hover:-translate-y-0.5'
                       }
                     `}
@@ -257,25 +277,29 @@ function App() {
                         Processing...
                       </span>
                     ) : (
-                      `🚀 Process ${selectedFiles.length} Image${selectedFiles.length !== 1 ? 's' : ''}`
+                      `Process ${selectedFiles.length} Image${selectedFiles.length !== 1 ? 's' : ''}`
                     )}
                   </button>
                 </div>
               )}
 
+              {/* Show disabled CTA when no files selected */}
               {selectedFiles.length === 0 && (
-                <p className="text-sm text-gray-500 text-center mt-4 py-3 bg-gray-50 rounded-lg">
-                  Drop images above or click to select files
-                </p>
+                <button
+                  disabled
+                  className="w-full mt-4 py-3 rounded-lg font-semibold text-base bg-gray-300 dark:bg-gray-600 text-gray-500 dark:text-gray-400 cursor-not-allowed"
+                >
+                  Select Images to Process
+                </button>
               )}
             </div>
-
-            {/* Results */}
-            {results.length > 0 && (
-              <ResultsDisplay results={results} onClear={handleClearResults} />
-            )}
           </div>
         </div>
+
+        {/* Results - Full Width Section */}
+        {results.length > 0 && (
+          <ResultsDisplay results={results} onClear={handleClearResults} />
+        )}
 
         {/* Bottom: Info Boxes in 3 Columns */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -284,11 +308,11 @@ function App() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-12 border-t border-gray-200 bg-white">
+      <footer className="mt-12 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 transition-colors duration-200">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-          <p className="text-center text-sm text-gray-600">
-            PixelSmith v1.0.0 • Built with ♥️ for privacy •
-            <a href="https://github.com/yatingodse19/PixelSmith" className="text-primary-600 hover:underline ml-1">
+          <p className="text-center text-sm text-gray-600 dark:text-gray-400">
+            PixelSmith v1.0.0 - Built with care for privacy -
+            <a href="https://github.com/yatingodse19/PixelSmith" className="text-primary-600 dark:text-primary-400 hover:underline ml-1">
               Open Source
             </a>
           </p>

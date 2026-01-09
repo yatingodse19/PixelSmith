@@ -17,10 +17,20 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.dark {
+  color-scheme: dark;
+  color: #e5e7eb;
+  background-color: #111827;
+}
+
 body {
   margin: 0;
   min-height: 100vh;
   background-color: #f9fafb;
+}
+
+.dark body {
+  background-color: #111827;
 }
 
 /* Ensure form elements have proper styling */
@@ -32,8 +42,24 @@ textarea {
   background-color: #ffffff;
 }
 
+.dark input[type="text"],
+.dark input[type="number"],
+.dark select,
+.dark textarea {
+  color: #e5e7eb;
+  background-color: #374151;
+  border-color: #4b5563;
+}
+
 input[type="range"] {
   cursor: pointer;
+}
+
+/* Custom checkbox and radio styling for dark mode */
+.dark input[type="checkbox"],
+.dark input[type="radio"] {
+  background-color: #374151;
+  border-color: #4b5563;
 }
 
 @layer components {
@@ -47,9 +73,11 @@ input[type="range"] {
 
   .input-field {
     @apply w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent bg-white text-gray-900;
+    @apply dark:bg-gray-700 dark:border-gray-600 dark:text-gray-100 dark:placeholder-gray-400;
   }
 
   .card {
     @apply bg-white rounded-lg shadow-md p-6;
+    @apply dark:bg-gray-800 dark:shadow-gray-900/50;
   }
 }

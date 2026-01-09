@@ -130,12 +130,12 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 space-y-6">
-      <h2 className="text-2xl font-bold text-gray-800">1. Choose What To Do</h2>
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 space-y-6 transition-colors duration-200">
+      <h2 className="text-2xl font-bold text-gray-800 dark:text-white">1. Select a Task</h2>
 
       {/* Preset Dropdown */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
+        <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
           Select Task:
         </label>
         <select
@@ -143,7 +143,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
           onChange={(e) => handlePresetChange(e.target.value)}
           className="input-field text-base"
         >
-          <option value="">-- Please select a task --</option>
+          <option value="" disabled>Select a task...</option>
           {PRESET_CATEGORIES.map((category) => (
             <optgroup key={category.category} label={category.category}>
               {category.presets.map((preset) => (
@@ -156,12 +156,12 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
         </select>
 
         {!selectedPresetName && (
-          <p className="text-sm text-gray-500 mt-2 italic">
-            👆 Choose a task to get started
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-2 italic">
+            Choose a task to get started
           </p>
         )}
         {currentPreset && (
-          <p className="text-sm text-gray-600 mt-2 italic">
+          <p className="text-sm text-gray-600 dark:text-gray-400 mt-2 italic">
             {currentPreset.description}
           </p>
         )}
@@ -169,14 +169,14 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 
       {/* Action Preview (only show when preset is selected) */}
       {selectedPresetName && currentPreset && (
-        <div className="bg-green-50 border-l-4 border-green-400 p-4 rounded">
-          <p className="font-semibold text-green-900 text-sm mb-2 flex items-center gap-2">
-            <span>✓</span> What will happen:
+        <div className="bg-green-50 dark:bg-green-900/20 border-l-4 border-green-400 dark:border-green-500 p-4 rounded">
+          <p className="font-semibold text-green-900 dark:text-green-300 text-sm mb-2 flex items-center gap-2">
+            <span>What will happen:</span>
           </p>
           <ul className="space-y-1">
             {getActionPreview().map((action, index) => (
-              <li key={index} className="text-sm text-green-800 flex items-start gap-2">
-                <span className="text-green-600 mt-0.5">•</span>
+              <li key={index} className="text-sm text-green-800 dark:text-green-400 flex items-start gap-2">
+                <span className="text-green-600 dark:text-green-500 mt-0.5">-</span>
                 <span>{action}</span>
               </li>
             ))}
@@ -198,9 +198,9 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
 
       {/* Settings Panel (for "Custom Settings") */}
       {currentPreset?.special === 'custom' && (
-        <div className="border-t border-gray-200 pt-4">
-          <p className="text-sm text-amber-600 bg-amber-50 p-3 rounded mb-4">
-            ⚙️ <strong>Advanced Mode:</strong> You have full control over all settings below.
+        <div className="border-t border-gray-200 dark:border-gray-700 pt-4">
+          <p className="text-sm text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/20 p-3 rounded mb-4">
+            <strong>Advanced Mode:</strong> You have full control over all settings below.
           </p>
           <SettingsPanel
             embedded={true}
@@ -210,8 +210,8 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
         </div>
       )}
 
-      {/* Crop Addon (available for all presets except Custom Settings) */}
-      {currentPreset?.special !== 'custom' && (
+      {/* Crop Addon (only show when task is selected, except Custom Settings) */}
+      {selectedPresetName && currentPreset?.special !== 'custom' && (
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <label className="flex items-center gap-2 cursor-pointer">
@@ -221,15 +221,15 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
                 onChange={(e) => setCropEnabled(e.target.checked)}
                 className="w-4 h-4 text-primary-600 rounded"
               />
-              <span className="text-sm font-medium text-gray-700">
-                ✂️ Add Crop (optional)
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Add Crop (optional)
               </span>
             </label>
 
             {cropEnabled && (
               <button
                 onClick={handleResetCrop}
-                className="text-xs text-gray-600 hover:text-gray-800 underline"
+                className="text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 underline"
               >
                 Reset crop values
               </button>
@@ -237,10 +237,10 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
           </div>
 
           {cropEnabled && (
-            <div className="bg-gray-50 p-4 rounded-lg space-y-3">
+            <div className="bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg space-y-3">
               {/* Crop Mode Toggle */}
               <div className="flex items-center gap-4 mb-3">
-                <span className="text-xs font-medium text-gray-700">Crop by:</span>
+                <span className="text-xs font-medium text-gray-700 dark:text-gray-300">Crop by:</span>
                 <div className="flex items-center gap-2">
                   <label className="flex items-center gap-1 cursor-pointer">
                     <input
@@ -251,7 +251,7 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
                       onChange={(e) => setCropMode('pixels')}
                       className="w-3 h-3 text-primary-600"
                     />
-                    <span className="text-xs text-gray-700">Pixels</span>
+                    <span className="text-xs text-gray-700 dark:text-gray-300">Pixels</span>
                   </label>
                   <label className="flex items-center gap-1 cursor-pointer">
                     <input
@@ -262,19 +262,19 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
                       onChange={(e) => setCropMode('percent')}
                       className="w-3 h-3 text-primary-600"
                     />
-                    <span className="text-xs text-gray-700">Percentage</span>
+                    <span className="text-xs text-gray-700 dark:text-gray-300">Percentage</span>
                   </label>
                 </div>
               </div>
 
-              <p className="text-xs text-gray-600 mb-3">
+              <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
                 Remove {cropMode === 'pixels' ? 'pixels' : 'percentage'} from each edge:
               </p>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    ⬆️ From Top
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    From Top
                   </label>
                   <input
                     type="number"
@@ -285,14 +285,14 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
                     max={cropMode === 'pixels' ? 4000 : 100}
                     placeholder="0"
                   />
-                  <span className="text-xs text-gray-500 ml-1">
+                  <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
                     {cropMode === 'pixels' ? 'px' : '%'}
                   </span>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    ⬇️ From Bottom
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    From Bottom
                   </label>
                   <input
                     type="number"
@@ -303,14 +303,14 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
                     max={cropMode === 'pixels' ? 4000 : 100}
                     placeholder="0"
                   />
-                  <span className="text-xs text-gray-500 ml-1">
+                  <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
                     {cropMode === 'pixels' ? 'px' : '%'}
                   </span>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    ⬅️ From Left
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    From Left
                   </label>
                   <input
                     type="number"
@@ -321,14 +321,14 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
                     max={cropMode === 'pixels' ? 4000 : 100}
                     placeholder="0"
                   />
-                  <span className="text-xs text-gray-500 ml-1">
+                  <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
                     {cropMode === 'pixels' ? 'px' : '%'}
                   </span>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    ➡️ From Right
+                  <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                    From Right
                   </label>
                   <input
                     type="number"
@@ -339,23 +339,23 @@ export const PresetSelector: React.FC<PresetSelectorProps> = ({
                     max={cropMode === 'pixels' ? 4000 : 100}
                     placeholder="0"
                   />
-                  <span className="text-xs text-gray-500 ml-1">
+                  <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
                     {cropMode === 'pixels' ? 'px' : '%'}
                   </span>
                 </div>
               </div>
 
               {cropMode === 'percent' && (
-                <p className="text-xs text-blue-600 bg-blue-50 p-2 rounded mt-2">
-                  ℹ️ Percentage values are approximate and calculated based on image dimensions
+                <p className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 p-2 rounded mt-2">
+                  Percentage values are approximate and calculated based on image dimensions
                 </p>
               )}
             </div>
           )}
 
           {!cropEnabled && (
-            <p className="text-xs text-gray-500 italic">
-              💡 Enable crop to remove unwanted edges or borders from images
+            <p className="text-xs text-gray-500 dark:text-gray-400 italic">
+              Enable crop to remove unwanted edges or borders from images
             </p>
           )}
         </div>

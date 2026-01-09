@@ -77,9 +77,9 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, onClear
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-lg p-6 space-y-6">
+    <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 space-y-6 transition-colors duration-200">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-800">Results</h2>
+        <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Results</h2>
         <div className="flex gap-2">
           {successfulResults.length > 0 && (
             <button
@@ -107,7 +107,7 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, onClear
           )}
           <button
             onClick={onClear}
-            className="bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 py-2 rounded-lg text-sm transition-colors"
+            className="bg-gray-200 dark:bg-gray-600 hover:bg-gray-300 dark:hover:bg-gray-500 text-gray-700 dark:text-gray-200 px-4 py-2 rounded-lg text-sm transition-colors"
           >
             Clear
           </button>
@@ -116,44 +116,46 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, onClear
 
       {/* Summary */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <div className="bg-green-50 rounded-lg p-4">
-          <p className="text-sm text-gray-600">✓ Success</p>
-          <p className="text-2xl font-bold text-green-600">{successfulResults.length}</p>
+        <div className="bg-green-50 dark:bg-green-900/20 rounded-lg p-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400">Success</p>
+          <p className="text-2xl font-bold text-green-600 dark:text-green-400">{successfulResults.length}</p>
         </div>
         {failedResults.length > 0 && (
-          <div className="bg-red-50 rounded-lg p-4">
-            <p className="text-sm text-gray-600">✗ Failed</p>
-            <p className="text-2xl font-bold text-red-600">{failedResults.length}</p>
+          <div className="bg-red-50 dark:bg-red-900/20 rounded-lg p-4">
+            <p className="text-sm text-gray-600 dark:text-gray-400">Failed</p>
+            <p className="text-2xl font-bold text-red-600 dark:text-red-400">{failedResults.length}</p>
           </div>
         )}
-        <div className="bg-blue-50 rounded-lg p-4">
-          <p className="text-sm text-gray-600">Total</p>
-          <p className="text-2xl font-bold text-blue-600">{results.length}</p>
+        <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4">
+          <p className="text-sm text-gray-600 dark:text-gray-400">Total</p>
+          <p className="text-2xl font-bold text-blue-600 dark:text-blue-400">{results.length}</p>
         </div>
       </div>
 
       {/* Individual Results */}
-      <div className="space-y-3 max-h-96 overflow-y-auto">
+      <div className="space-y-3">
         {results.map((result, index) => (
           <div
             key={index}
             className={`p-4 rounded-lg border-2 ${
-              result.success ? 'border-green-200 bg-green-50' : 'border-red-200 bg-red-50'
+              result.success
+                ? 'border-green-200 dark:border-green-700 bg-green-50 dark:bg-green-900/20'
+                : 'border-red-200 dark:border-red-700 bg-red-50 dark:bg-red-900/20'
             }`}
           >
             <div className="flex items-start justify-between gap-4">
               <div className="flex-1 min-w-0">
-                <p className="font-medium text-gray-800 truncate">
+                <p className="font-medium text-gray-800 dark:text-gray-200 truncate">
                   {result.filename}
                 </p>
                 {result.success ? (
-                  <div className="mt-2 space-y-1 text-sm text-gray-600">
+                  <div className="mt-2 space-y-1 text-sm text-gray-600 dark:text-gray-400">
                     {result.size && (
                       <p>Output size: {formatSize(result.size)}</p>
                     )}
                   </div>
                 ) : (
-                  <p className="mt-1 text-sm text-red-600">
+                  <p className="mt-1 text-sm text-red-600 dark:text-red-400">
                     Error: {result.error || 'Unknown error'}
                   </p>
                 )}
@@ -185,7 +187,7 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, onClear
                 <img
                   src={result.url}
                   alt="Processed"
-                  className="max-w-xs rounded border border-gray-200"
+                  className="max-w-xs rounded border border-gray-200 dark:border-gray-600"
                   onError={(e) => {
                     console.error('Image failed to load:', result.url);
                     e.currentTarget.style.display = 'none';

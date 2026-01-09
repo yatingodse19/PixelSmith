@@ -82,17 +82,17 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
   }, [resizeMode, resizeWidth, resizeHeight, outputFormat, quality, enableCrop, cropMode, cropTop, cropBottom, cropLeft, cropRight, noUpscale, progressive, stripMetadata]);
 
   return (
-    <div className={embedded ? 'space-y-6' : 'bg-white rounded-xl shadow-lg p-6 space-y-6'}>
-      {!embedded && <h2 className="text-2xl font-bold text-gray-800">1. Configure Settings</h2>}
+    <div className={embedded ? 'space-y-6' : 'bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 space-y-6 transition-colors duration-200'}>
+      {!embedded && <h2 className="text-2xl font-bold text-gray-800 dark:text-white">1. Configure Settings</h2>}
 
       {/* Resize Settings */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-          <span>📐</span> Resize
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+          <span>Resize</span>
         </h3>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Resize Mode
           </label>
           <select
@@ -103,13 +103,13 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
             <option value="none">No Resize (keep original size)</option>
             <option value="width">Resize by Width</option>
             <option value="height">Resize by Height</option>
-            <option value="contain">Fit in Box (width × height)</option>
+            <option value="contain">Fit in Box (width x height)</option>
           </select>
         </div>
 
         {(resizeMode === 'width' || resizeMode === 'contain') && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Width (px)
             </label>
             <input
@@ -125,7 +125,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
 
         {(resizeMode === 'height' || resizeMode === 'contain') && (
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
               Height (px)
             </label>
             <input
@@ -148,7 +148,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
               onChange={(e) => setNoUpscale(e.target.checked)}
               className="w-4 h-4 text-primary-600 rounded"
             />
-            <label htmlFor="noUpscale" className="text-sm font-medium text-gray-700">
+            <label htmlFor="noUpscale" className="text-sm font-medium text-gray-700 dark:text-gray-300">
               Prevent upscaling (don't enlarge small images)
             </label>
           </div>
@@ -158,8 +158,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
       {/* Enhanced Crop Settings */}
       <div className="space-y-4">
         <div className="flex items-center gap-3">
-          <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-            <span>✂️</span> Crop
+          <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+            <span>Crop</span>
           </h3>
           <label className="flex items-center gap-2 cursor-pointer">
             <input
@@ -168,15 +168,15 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
               onChange={(e) => setEnableCrop(e.target.checked)}
               className="w-4 h-4 text-primary-600 rounded"
             />
-            <span className="text-sm font-medium text-gray-700">Enable</span>
+            <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Enable</span>
           </label>
         </div>
 
         {enableCrop && (
-          <div className="space-y-3 bg-gray-50 p-4 rounded-lg">
+          <div className="space-y-3 bg-gray-50 dark:bg-gray-700/50 p-4 rounded-lg">
             {/* Crop Mode Toggle */}
             <div className="flex items-center gap-4 mb-3">
-              <span className="text-sm font-medium text-gray-700">Crop by:</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">Crop by:</span>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
                   type="radio"
@@ -186,7 +186,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
                   onChange={() => setCropMode('pixels')}
                   className="w-4 h-4 text-primary-600"
                 />
-                <span className="text-sm text-gray-700">Pixels</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300">Pixels</span>
               </label>
               <label className="flex items-center gap-2 cursor-pointer">
                 <input
@@ -197,18 +197,18 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
                   onChange={() => setCropMode('percent')}
                   className="w-4 h-4 text-primary-600"
                 />
-                <span className="text-sm text-gray-700">Percentage</span>
+                <span className="text-sm text-gray-700 dark:text-gray-300">Percentage</span>
               </label>
             </div>
 
-            <p className="text-xs text-gray-600 mb-3">
+            <p className="text-xs text-gray-600 dark:text-gray-400 mb-3">
               Remove from each edge {cropMode === 'pixels' ? '(in pixels)' : '(in percentage)'}:
             </p>
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  ⬆️ From Top
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  From Top
                 </label>
                 <input
                   type="number"
@@ -219,14 +219,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
                   max={cropMode === 'pixels' ? 4000 : 100}
                   placeholder="0"
                 />
-                <span className="text-xs text-gray-500 ml-1">
+                <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
                   {cropMode === 'pixels' ? 'px' : '%'}
                 </span>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  ⬇️ From Bottom
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  From Bottom
                 </label>
                 <input
                   type="number"
@@ -237,14 +237,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
                   max={cropMode === 'pixels' ? 4000 : 100}
                   placeholder="0"
                 />
-                <span className="text-xs text-gray-500 ml-1">
+                <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
                   {cropMode === 'pixels' ? 'px' : '%'}
                 </span>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  ⬅️ From Left
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  From Left
                 </label>
                 <input
                   type="number"
@@ -255,14 +255,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
                   max={cropMode === 'pixels' ? 4000 : 100}
                   placeholder="0"
                 />
-                <span className="text-xs text-gray-500 ml-1">
+                <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
                   {cropMode === 'pixels' ? 'px' : '%'}
                 </span>
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  ➡️ From Right
+                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                  From Right
                 </label>
                 <input
                   type="number"
@@ -273,15 +273,15 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
                   max={cropMode === 'pixels' ? 4000 : 100}
                   placeholder="0"
                 />
-                <span className="text-xs text-gray-500 ml-1">
+                <span className="text-xs text-gray-500 dark:text-gray-400 ml-1">
                   {cropMode === 'pixels' ? 'px' : '%'}
                 </span>
               </div>
             </div>
 
             {cropMode === 'percent' && (
-              <p className="text-xs text-blue-600 bg-blue-50 p-2 rounded mt-2">
-                ℹ️ Percentage values are calculated based on actual image dimensions
+              <p className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 p-2 rounded mt-2">
+                Percentage values are calculated based on actual image dimensions
               </p>
             )}
 
@@ -292,7 +292,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
                 setCropLeft(0);
                 setCropRight(0);
               }}
-              className="text-xs text-gray-600 hover:text-gray-800 underline"
+              className="text-xs text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 underline"
             >
               Reset all crop values
             </button>
@@ -302,12 +302,12 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
 
       {/* Format Settings */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-          <span>🖼️</span> Format & Compression
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+          <span>Format & Compression</span>
         </h3>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             Output Format
           </label>
           <select
@@ -321,38 +321,38 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
             <option value="png">PNG (lossless, larger files)</option>
           </select>
           {outputFormat === 'auto' && (
-            <p className="text-xs text-green-600 bg-green-50 p-2 rounded mt-2">
-              ✅ <strong>Original format preserved</strong> - PNG stays PNG, JPEG stays JPEG. Quality applies to lossy formats.
+            <p className="text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 p-2 rounded mt-2">
+              <strong>Original format preserved</strong> - PNG stays PNG, JPEG stays JPEG. Quality applies to lossy formats.
             </p>
           )}
           {outputFormat === 'webp' && (
-            <p className="text-xs text-green-600 bg-green-50 p-2 rounded mt-2">
-              ✅ <strong>WebP format</strong> - Typically 25-35% smaller than JPEG at same quality. Great for web!
+            <p className="text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/20 p-2 rounded mt-2">
+              <strong>WebP format</strong> - Typically 25-35% smaller than JPEG at same quality. Great for web!
             </p>
           )}
           {outputFormat === 'png' && (
-            <p className="text-xs text-blue-600 bg-blue-50 p-2 rounded mt-2">
-              ℹ️ <strong>PNG is lossless</strong> - Quality slider has no effect. Best for graphics with transparency.
+            <p className="text-xs text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 p-2 rounded mt-2">
+              <strong>PNG is lossless</strong> - Quality slider has no effect. Best for graphics with transparency.
             </p>
           )}
         </div>
 
         <div>
-          <label className={`block text-sm font-medium mb-2 ${outputFormat === 'jpg' || outputFormat === 'webp' || outputFormat === 'auto' ? 'text-gray-700' : 'text-gray-400'}`}>
-            Quality: <span className={outputFormat === 'jpg' || outputFormat === 'webp' || outputFormat === 'auto' ? 'text-primary-600 font-bold' : 'text-gray-400 font-bold'}>{quality}</span>
+          <label className={`block text-sm font-medium mb-2 ${outputFormat === 'jpg' || outputFormat === 'webp' || outputFormat === 'auto' ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500'}`}>
+            Quality: <span className={outputFormat === 'jpg' || outputFormat === 'webp' || outputFormat === 'auto' ? 'text-primary-600 dark:text-primary-400 font-bold' : 'text-gray-400 dark:text-gray-500 font-bold'}>{quality}</span>
             {outputFormat === 'png' && <span className="text-xs ml-2">(not used for PNG)</span>}
-            {outputFormat === 'auto' && <span className="text-xs ml-2 text-gray-500">(applies to lossy formats)</span>}
+            {outputFormat === 'auto' && <span className="text-xs ml-2 text-gray-500 dark:text-gray-400">(applies to lossy formats)</span>}
           </label>
           <input
             type="range"
             value={quality}
             onChange={(e) => setQuality(parseInt(e.target.value))}
             disabled={outputFormat === 'png'}
-            className={`w-full h-2 rounded-lg appearance-none ${outputFormat !== 'png' ? 'cursor-pointer bg-gray-200 accent-primary-600' : 'cursor-not-allowed bg-gray-100 opacity-50'}`}
+            className={`w-full h-2 rounded-lg appearance-none ${outputFormat !== 'png' ? 'cursor-pointer bg-gray-200 dark:bg-gray-600 accent-primary-600' : 'cursor-not-allowed bg-gray-100 dark:bg-gray-700 opacity-50'}`}
             min="1"
             max="100"
           />
-          <div className={`flex justify-between text-xs mt-1 ${outputFormat !== 'png' ? 'text-gray-500' : 'text-gray-400'}`}>
+          <div className={`flex justify-between text-xs mt-1 ${outputFormat !== 'png' ? 'text-gray-500 dark:text-gray-400' : 'text-gray-400 dark:text-gray-500'}`}>
             <span>Lower (smaller file)</span>
             <span>Higher (better quality)</span>
           </div>
@@ -361,8 +361,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
 
       {/* Privacy & Metadata */}
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold text-gray-700 flex items-center gap-2">
-          <span>🔒</span> Privacy & Metadata
+        <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-200 flex items-center gap-2">
+          <span>Privacy & Metadata</span>
         </h3>
 
         <div className="space-y-3">
@@ -376,12 +376,12 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
               className={`w-4 h-4 rounded ${outputFormat === 'jpg' ? 'text-primary-600 cursor-pointer' : 'cursor-not-allowed opacity-50'}`}
             />
             <div className="flex-1">
-              <span className={`text-sm font-medium ${outputFormat === 'jpg' ? 'text-gray-700' : 'text-gray-400'}`}>
+              <span className={`text-sm font-medium ${outputFormat === 'jpg' ? 'text-gray-700 dark:text-gray-300' : 'text-gray-400 dark:text-gray-500'}`}>
                 Progressive JPEG
               </span>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 Loads gradually (top to bottom). Slightly larger files but better user experience.
-                {outputFormat !== 'jpg' && <span className="text-amber-600"> (JPEG only)</span>}
+                {outputFormat !== 'jpg' && <span className="text-amber-600 dark:text-amber-400"> (JPEG only)</span>}
               </p>
             </div>
           </label>
@@ -395,21 +395,21 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
               className="w-4 h-4 rounded text-primary-600 cursor-pointer"
             />
             <div className="flex-1">
-              <span className="text-sm font-medium text-gray-700">
-                Strip EXIF Metadata <span className="text-blue-600 text-xs">(Recommended)</span>
+              <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Strip EXIF Metadata <span className="text-blue-600 dark:text-blue-400 text-xs">(Recommended)</span>
               </span>
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 Removes camera info, GPS location, timestamps for privacy. Enabled by default.
               </p>
             </div>
           </label>
 
-          <div className={`border-l-4 p-3 rounded mt-2 ${stripMetadata ? 'bg-green-50 border-green-400' : 'bg-amber-50 border-amber-400'}`}>
-            <p className={`text-xs ${stripMetadata ? 'text-green-800' : 'text-amber-800'}`}>
+          <div className={`border-l-4 p-3 rounded mt-2 ${stripMetadata ? 'bg-green-50 dark:bg-green-900/20 border-green-400 dark:border-green-500' : 'bg-amber-50 dark:bg-amber-900/20 border-amber-400 dark:border-amber-500'}`}>
+            <p className={`text-xs ${stripMetadata ? 'text-green-800 dark:text-green-300' : 'text-amber-800 dark:text-amber-300'}`}>
               {stripMetadata ? (
-                <>✓ <strong>Privacy-first:</strong> EXIF metadata will be removed from processed images.</>
+                <><strong>Privacy-first:</strong> EXIF metadata will be removed from processed images.</>
               ) : (
-                <>⚠️ <strong>Privacy notice:</strong> EXIF metadata will be preserved. This may include GPS location, camera info, and timestamps.</>
+                <><strong>Privacy notice:</strong> EXIF metadata will be preserved. This may include GPS location, camera info, and timestamps.</>
               )}
             </p>
           </div>
@@ -417,9 +417,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({ pipeline, onChange
       </div>
 
       {/* WebAssembly Info */}
-      <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
-        <p className="text-sm text-blue-800">
-          ⚡ <strong>WebAssembly-powered:</strong> All processing happens in your browser.
+      <div className="bg-blue-50 dark:bg-blue-900/20 border-l-4 border-blue-400 dark:border-blue-500 p-4 rounded">
+        <p className="text-sm text-blue-800 dark:text-blue-300">
+          <strong>WebAssembly-powered:</strong> All processing happens in your browser.
           Images never leave your device!
         </p>
       </div>

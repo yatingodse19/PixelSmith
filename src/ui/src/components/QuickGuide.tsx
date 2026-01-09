@@ -10,63 +10,56 @@ export const QuickGuide: React.FC<QuickGuideProps> = ({ selectedPreset }) => {
     if (selectedPreset.includes('Web')) {
       return [
         'Original format is preserved (PNG/JPEG/WebP)',
-        'Quality 85 is perfect for web - good balance',
+        'Quality 85 is perfect for web',
         'Enable crop to remove unwanted edges',
-        '1024px width works great for most websites'
       ];
     } else if (selectedPreset.includes('Convert')) {
       return [
         'PNG is lossless but larger file size',
-        'JPEG/WebP are lossy - adjust quality slider',
-        'WebP offers best compression with great quality',
-        'Always preview before batch converting'
+        'WebP offers best compression',
+        'Always preview before batch converting',
       ];
     } else if (selectedPreset.includes('Thumbnail')) {
       return [
-        'Thumbnails load faster with lower quality',
         '300px is perfect for preview images',
         'Original format preserved, just resized',
-        'Batch process multiple images at once'
+        'Batch process multiple images at once',
       ];
     } else if (selectedPreset.includes('Email')) {
       return [
-        '600px width keeps email attachments small',
+        '600px width keeps attachments small',
         'Quality 70 reduces file size significantly',
-        'Format preserved - PNG stays PNG, JPEG stays JPEG',
-        'Keep files under 1MB for email compatibility'
+        'Keep files under 1MB for compatibility',
       ];
     } else if (selectedPreset.includes('Social')) {
       return [
-        '1080×1080 is perfect for Instagram posts',
-        'Facebook and Instagram prefer square images',
-        'Quality 85 looks great on mobile screens',
-        'Use crop to focus on the important part'
+        '1080x1080 is perfect for Instagram',
+        'Quality 85 looks great on mobile',
+        'Use crop to focus on the important part',
       ];
     } else if (selectedPreset.includes('Custom')) {
       return [
-        'Experiment with different settings',
+        'Full control over all settings',
         'Preview results before batch processing',
-        'Save time by creating custom presets',
-        'Use "No upscale" to avoid quality loss'
+        'Use "No upscale" to avoid quality loss',
       ];
     }
 
     // Default tips
     return [
-      'Use presets for common tasks',
+      'Select a task to get started',
       'Original format is always preserved',
-      'Quality 85 is a good balance',
-      'Batch process multiple images at once'
+      'Batch process multiple images at once',
     ];
   };
 
   return (
     <>
-      {/* Privacy Notice Box */}
-      <div className="bg-green-50 border-2 border-green-200 rounded-xl p-4 h-full">
-        <div className="flex items-start gap-3">
+      {/* Privacy Notice Box - Reduced prominence */}
+      <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3 h-full">
+        <div className="flex items-start gap-2">
           <svg
-            className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5"
+            className="w-5 h-5 text-green-500 dark:text-green-400 flex-shrink-0 mt-0.5"
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"
@@ -79,56 +72,52 @@ export const QuickGuide: React.FC<QuickGuideProps> = ({ selectedPreset }) => {
             />
           </svg>
           <div>
-            <p className="font-semibold text-green-900 text-sm">
-              🔒 Privacy Protected
+            <p className="font-medium text-gray-700 dark:text-gray-300 text-sm">
+              100% Private
             </p>
-            <p className="text-green-700 text-xs mt-1">
-              Lightning-fast processing with WebAssembly. Your images never leave your device.
+            <p className="text-gray-500 dark:text-gray-400 text-xs mt-0.5">
+              Images never leave your device
             </p>
           </div>
         </div>
       </div>
 
-      {/* Quick Tips Box (Context-Aware) */}
-      <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4 h-full">
-        <h3 className="font-semibold text-blue-900 text-sm mb-3 flex items-center gap-2">
-          <span>💡</span> Quick Tips
+      {/* Quick Tips Box - Reduced prominence */}
+      <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3 h-full">
+        <h3 className="font-medium text-gray-700 dark:text-gray-300 text-sm mb-2">
+          Tips
         </h3>
-        <ul className="space-y-2 text-xs text-blue-800">
+        <ul className="space-y-1 text-xs text-gray-500 dark:text-gray-400">
           {getContextualTips().map((tip, index) => (
-            <li key={index} className="flex items-start gap-2">
-              <span className="text-blue-600 mt-0.5">•</span>
+            <li key={index} className="flex items-start gap-1.5">
+              <span className="text-gray-400 dark:text-gray-500 mt-0.5">•</span>
               <span>{tip}</span>
             </li>
           ))}
         </ul>
       </div>
 
-      {/* Features Box */}
-      <div className="bg-purple-50 border-2 border-purple-200 rounded-xl p-4 h-full">
-        <h3 className="font-semibold text-purple-900 text-sm mb-3 flex items-center gap-2">
-          <span>✨</span> Features
+      {/* Features Box - Reduced prominence */}
+      <div className="bg-gray-50 dark:bg-gray-800/50 border border-gray-200 dark:border-gray-700 rounded-lg p-3 h-full">
+        <h3 className="font-medium text-gray-700 dark:text-gray-300 text-sm mb-2">
+          Features
         </h3>
-        <ul className="space-y-2 text-xs text-purple-800">
-          <li className="flex items-start gap-2">
-            <span className="text-purple-600">✓</span>
-            <span>Resize images (width, height, contain)</span>
+        <ul className="space-y-1 text-xs text-gray-500 dark:text-gray-400">
+          <li className="flex items-start gap-1.5">
+            <span className="text-gray-400 dark:text-gray-500">•</span>
+            <span>Resize, crop, and convert</span>
           </li>
-          <li className="flex items-start gap-2">
-            <span className="text-purple-600">✓</span>
-            <span>Crop from any edge (pixels or %)</span>
+          <li className="flex items-start gap-1.5">
+            <span className="text-gray-400 dark:text-gray-500">•</span>
+            <span>Preserves or changes format</span>
           </li>
-          <li className="flex items-start gap-2">
-            <span className="text-purple-600">✓</span>
-            <span>Preserves format or convert</span>
-          </li>
-          <li className="flex items-start gap-2">
-            <span className="text-purple-600">✓</span>
+          <li className="flex items-start gap-1.5">
+            <span className="text-gray-400 dark:text-gray-500">•</span>
             <span>Removes EXIF metadata</span>
           </li>
-          <li className="flex items-start gap-2">
-            <span className="text-purple-600">✓</span>
-            <span>Batch processing support</span>
+          <li className="flex items-start gap-1.5">
+            <span className="text-gray-400 dark:text-gray-500">•</span>
+            <span>Batch processing</span>
           </li>
         </ul>
       </div>
