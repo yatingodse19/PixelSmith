@@ -78,9 +78,9 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, onClear
 
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl shadow-lg p-6 space-y-6 transition-colors duration-200">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <h2 className="text-2xl font-bold text-gray-800 dark:text-white">Results</h2>
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap">
           {successfulResults.length > 0 && (
             <button
               onClick={handleDownloadAll}
@@ -183,11 +183,11 @@ export const ResultsDisplay: React.FC<ResultsDisplayProps> = ({ results, onClear
               )}
             </div>
             {result.success && result.url && (
-              <div className="mt-3">
+              <div className="mt-3 overflow-hidden">
                 <img
                   src={result.url}
                   alt="Processed"
-                  className="max-w-xs rounded border border-gray-200 dark:border-gray-600"
+                  className="max-w-full sm:max-w-xs h-auto rounded border border-gray-200 dark:border-gray-600"
                   onError={(e) => {
                     console.error('Image failed to load:', result.url);
                     e.currentTarget.style.display = 'none';
