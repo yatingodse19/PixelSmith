@@ -83,8 +83,21 @@ npm run test:run   # Run tests once
 
 ### TailwindCSS Conventions
 - Use utility classes over custom CSS.
-- Mobile-first responsive design.
-- Dark mode support optional for MVP.
+- Mobile-first responsive design (`sm:`, `md:`, `lg:` breakpoints).
+- Dark mode enabled via `darkMode: 'class'` in Tailwind config.
+- Use `dark:` prefix for dark mode variants (e.g., `dark:bg-gray-800`).
+
+### Theme Management
+- ThemeContext provides `theme`, `toggleTheme`, and `setTheme`.
+- Default theme: **dark** (set in `index.html` to prevent flash).
+- Theme persisted to localStorage (`pixelsmith-theme` key).
+- Inline script in `index.html` applies theme before React loads.
+
+### Mobile Responsiveness
+- Use `hidden sm:block` to hide elements on mobile.
+- Use `flex-col sm:flex-row` for stacking on mobile.
+- Image previews: `max-w-full sm:max-w-xs` for responsive sizing.
+- Test on mobile via `npm run dev:ui -- --host` (exposes to network).
 
 ## 7. Workflow & Branching
 - `main` = stable branch.
@@ -103,6 +116,7 @@ npm run test:run   # Run tests once
 ### Browser-Side Processing
 - Uses `@silvia-odwyer/photon` for WASM-based image operations.
 - `@jsquash/jpeg` and `@jsquash/webp` for format conversion.
+- `heic2any` for HEIC/HEIF to JPEG conversion (iOS mobile support).
 - Processing happens entirely in browser (no server uploads).
 
 ### WASM Module Loading
@@ -132,9 +146,10 @@ npm run test:run   # Run tests once
 - No silent failures—always notify user.
 
 ## 11. Known Pitfalls
-- HEIC decoding depends on platform support.
-- Large batches require concurrency management.
+- HEIC files auto-converted to JPEG via `heic2any` (adds processing time).
+- Large batches require concurrency management (default: 4 parallel).
 - Web UI (PWA) may need file system API permissions.
+- AVIF format not supported (falls back to WebP).
 
 ## 12. Testing Strategy
 ### Testing Framework
