@@ -25,11 +25,14 @@ PixelSmith is a powerful, client-side image processing tool that runs entirely i
 
 ### 🎨 Core Capabilities
 - **Beautiful Web Interface** - Preset-first design with responsive 2-column layout, drag-and-drop file upload
+- **Dark Mode** - Default dark theme with light mode toggle, persisted to localStorage
+- **Mobile-Friendly** - Responsive design optimized for phones and tablets
 - **WebAssembly Powered** - Near-native performance using Rust/WASM
 - **100% Privacy** - Images never leave your device, EXIF automatically stripped
 - **Batch Processing** - Process multiple images with progress tracking
 - **Built-in Presets** - 8 ready-to-use workflows for common tasks (web optimization, social media, thumbnails, etc.)
 - **Format Preservation** - Original format preserved by default (PNG stays PNG, JPEG stays JPEG)
+- **HEIC/HEIF Support** - iOS photos automatically converted for processing
 - **Works Offline** - No internet required after initial load
 - **No Backend Needed** - Pure client-side, deploy to any static host
 
@@ -119,7 +122,7 @@ This will:
 2. **Upload Images** (Right Column)
    - Drag and drop files onto the upload area
    - Or click to browse and select files
-   - Supports: JPEG, PNG, WebP, GIF, BMP
+   - Supports: JPEG, PNG, WebP, GIF, BMP, HEIC/HEIF (iOS)
    - Upload single or multiple images for batch processing
 
 3. **Process**
@@ -508,6 +511,8 @@ The following features are **not yet supported** in the WebAssembly version:
 - ✅ Progressive JPEG (added with MozJPEG)
 - ✅ Strip EXIF metadata (automatic, always enabled)
 - ✅ WebP quality control (added with @jsquash/webp)
+- ✅ HEIC/HEIF support (added with heic2any for iOS mobile)
+- ✅ Dark mode (default dark theme with toggle)
 
 ---
 
@@ -525,6 +530,8 @@ The following features are **not yet supported** in the WebAssembly version:
 | **Strip EXIF** | ✅ Automatic | ✅ Optional |
 | **AVIF Format** | ❌ WebP fallback | ✅ Full support |
 | **Autorotate** | ❌ Not supported | ✅ Supported |
+| **HEIC/HEIF** | ✅ Auto-converts to JPEG | ✅ Supported |
+| **Dark Mode** | ✅ Default dark theme | ❌ N/A |
 
 **Recommendation**: Use WebAssembly version unless you specifically need AVIF or autorotate.
 
@@ -612,6 +619,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 - **[jSquash](https://github.com/jamsinclair/jSquash)** by [@jamsinclair](https://github.com/jamsinclair) - Browser-focused image codecs (WebP, MozJPEG)
 - **[MozJPEG](https://github.com/mozilla/mozjpeg)** by Mozilla - Industry-standard JPEG encoder
 - **[libwebp](https://chromium.googlesource.com/webm/libwebp)** by Google - WebP encoder/decoder
+- **[heic2any](https://github.com/nichenqin/heic2any)** - HEIC/HEIF to JPEG/PNG conversion for iOS support
 
 ### Frontend
 - **[React](https://react.dev/)** - UI framework
@@ -642,7 +650,7 @@ MIT License - see [LICENSE](LICENSE) for details.
 - [ ] PWA support (offline installation)
 
 ### Under Consideration
-- [ ] HEIC/HEIF support
+- [x] ~~HEIC/HEIF support~~ ✅ Added in v2.2.0
 - [ ] PDF to image conversion
 - [ ] SVG optimization
 - [ ] GIF optimization
